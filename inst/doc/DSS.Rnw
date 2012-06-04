@@ -1,0 +1,143 @@
+%\VignetteIndexEntry{Differential expression for RNA-seq data with dispersion shrinkage}
+%\VignettePackage{DSS}                                                                        
+
+\documentclass{article}
+
+\usepackage{float}
+\usepackage{Sweave}
+\usepackage[a4paper]{geometry}
+\usepackage{hyperref,graphicx}
+\textwidth=6.5in
+\textheight=9in
+%\parskip=.3cm                                                                                     
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-.5in
+\footskip=0.6in
+\renewcommand{\baselinestretch}{1.3}
+
+
+\SweaveOpts{keep.source=TRUE,eps=FALSE,include=TRUE,width=4,height=4}
+%\newcommand{\Robject}[1]{\texttt{#1}}                                                             
+%\newcommand{\Rpackage}[1]{\textit{#1}}                                                            
+%\newcommand{\Rclass}[1]{\textit{#1}}                                                              
+%\newcommand{\Rfunction}[1]{{\small\texttt{#1}}}                                                   
+
+\author{Hao Wu \\[1em]Department of Biostatistics and Bioinformatics\\ Emory University\\
+  Atlanta, GA 303022 \\ [1em] \texttt{hao.wu@emory.edu}}
+
+\title{\textsf{\textbf{Differential expression with DSS \\ (Dispersion Shrinkage for Sequencing data)}}}
+
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+%% abstract
+\begin{abstract}
+This vignette introduces the use of Bioconductor package 
+DSS ({\underline D}ispersion {\underline S}hrinkage 
+for {\underline S}equencing data), which is designed primarily for 
+differential expression detection for count data from RNA-seq. 
+DSS uses new procedures to estimate and shrink 
+gene-specific dispersions, then conduct Wald test for
+hypothesis testing. Compared to existing methods 
+(DESeq and edgeR) DSS provides excellent 
+statistical and computational performance, especially
+when overall dispersion level is high in data.
+\end{abstract}
+
+
+\section{Introdution}
+RNA-seq is a new technology for measuring the abundance of RNA products  in a biological sample.
+Compared to gene expression microarrays, it provides better dynamic ranges and lower signal-to-noise ratio,
+so it's quickly becoming the technology of choice for gene expression quantifications. 
+One of the fundamental questions for RNA-seq data analyses
+is the regulation of gene expression under different biological contexts.
+Therefore identifying differential expression (DE) remains a key
+task in studying gene expression. 
+
+The major distinction of RNA-seq data compared to microarray is that the 
+expression measurements are counts. Most of the existing statistical methods
+model the count data as over-dispersed Poisson, or negative binomial. 
+The over dispersion parameters, which represent  the biological variations for
+replicates within a treatment group, play a central role in the DE detection algorithm.
+There have been several statistical methods and  software tools available 
+to perform DE detection from RNA-seq data, each with different procedures 
+for dispersion estimation and hypothesis testing. 
+
+Here we present a new DE detection algorithm. First the gene specific 
+dispersions are estimated through a method of moment estimator. 
+Then data from all genes were combined to shrink dispersions
+through a penalized likelihood  approach. Finally 
+hypothesis testing is conducted using a Wald test. 
+Results showed that the new method provide excellent performance
+compared to existing method, especially when overall dispersion level is high.
+The method is implemented in the Bioconductor package 
+DSS, referring to \underline{D}ispersion \underline{S}hrinkage 
+for \underline{S}equencing data. 
+
+Currently DSS only support comparison of expressions from
+two treatment groups. Methods for more advanced design
+is under development and will be implemented soon.
+
+
+\section{Getting started to use {\tt DSS}}
+Required inputs for DSS are (1) gene expressions as a matrix of integers, 
+rows  are for genes and columns are for samples;
+and (2) a vector representing experimental designs. The length of the
+design vector must match the number of columns of input counts.
+Optionally, normalization factors or additional annotation for genes 
+can be supplied. 
+
+The basic data container  in the package is {\tt SeqCountSet} class, 
+which is directly inherited from {\tt ExpressionSet} class 
+defined in {\tt Biobase}. An object of the class contains all necessary
+information for a DE analysis: gene expressions, experimental designs,
+and additional annotations. 
+
+A typical DE analysis contain following simple steps. 
+\begin{enumerate}
+\item Create a  {\tt SeqCountSet} object using {\tt newSeqCountSet}.
+\item Estimate normalization factor using {\tt estNormFactors}. 
+\item Estimate and shrink gene-wise dispersion using {\tt estDispersion}
+\item Two group comparison using {\tt waldTest}. 
+\end{enumerate}
+
+The usage of DSS is demonstrated by below simple simulation. 
+\begin{enumerate}
+\item First load in the library, and make a {\tt SeqCountSet}
+object from some counts for 2000 genes and 6 samples. 
+<<echo=TRUE, result=TRUE>>=
+library(DSS)
+counts1=matrix(rnbinom(300, mu=10, size=10), ncol=3)
+counts2=matrix(rnbinom(300, mu=50, size=10), ncol=3)
+X1=cbind(counts1, counts2) ## these are 100 DE genes
+X2=matrix(rnbinom(11400, mu=10, size=10), ncol=6)
+X=rbind(X1,X2)
+designs=c(0,0,0,1,1,1)
+seqData=newSeqCountSet(X, designs)
+seqData
+@
+\item Estimate normalization factor. 
+<<echo=TRUE, result=TRUE>>=
+seqData=estNormFactors(seqData)
+@ 
+\item Estimate and shrink gene-wise dispersions
+<<>>=
+seqData=estDispersion(seqData)
+@ 
+\item With normalization factors and dispersions ready, two group comparison can be 
+conducted via a wald test:
+<<>>=
+result=waldTest(seqData, 0, 1)
+head(result,5)
+@
+\end{enumerate}
+
+\section{Session Info}
+<<echo=TRUE, result=TRUE>>=
+sessionInfo()
+@ 
+\end{document}
+

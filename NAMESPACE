@@ -1,0 +1,15 @@
+import( Biobase )
+
+exportClasses("SeqCountSet") 
+exportMethods(
+   normalizationFactor, "normalizationFactor<-",
+   dispersion, "dispersion<-"
+)
+
+export(
+   newSeqCountSet,
+   estDispersion, 
+   estNormFactors, 
+   waldTest
+)
+
