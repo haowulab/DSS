@@ -1,6 +1,6 @@
 ### function to compute normalization factors for an object of SeqCountSet
 ### I'm using a naive method now.
-estNormFactors <- function(seqData, method=c("quantile", "total", "median")) {
+estNormFactors <- function(seqData, method=c("total", "quantile", "median")) {
   if(!is(seqData, "SeqCountSet"))
     stop("Input must be an object of SeqCountSet class!")
   
@@ -18,7 +18,7 @@ estNormFactors <- function(seqData, method=c("quantile", "total", "median")) {
 }
 
 estNormFactors.quantile <- function(X) {
-  k=apply(X, 2, quantile, 0.75)
+  k=apply(X, 2, function(x) quantile(x[x>0], 0.75))
   k/min(k)
 }
 

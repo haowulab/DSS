@@ -49,6 +49,9 @@ waldTest <- function(seqData, sampleA, sampleB, equal.var=FALSE) {
     Fl = sum(fdrres$mat[ind,"f"])
     fdr.global[i] = F0l / Fl
   }
+  ## some times (e.g., when there's no true DE) localfdr isn't stable and will
+  ## generate p-values bigger than one. Fix it.
+  fdr.global[fdr.global>1]=1
   
   ## generate a data frame of reports
   lfc=log((muA+0.5)/(muB+0.5))

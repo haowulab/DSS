@@ -11,14 +11,20 @@
   likelihood approach. 
 }
 \usage{
-\S4method{estDispersion}{SeqCountSet}(seqData)
+\S4method{estDispersion}{SeqCountSet}(seqData, trend=FALSE)
 }
 \arguments{
   \item{seqData}{An object of SeqCountSet class.}
+  \item{trend}{A binary indicator for modeling the dispersion~expression
+  trend.} 
 }
 \details{
   The function takes and object of seqCountData class and return the
   same oject with ``dispersion'' field filled.
+
+  With ``trend=TRUE'' the dependence of dispersion on mean expressions
+  will be modeled. In that case the shrinkage will be performed
+  conditional on mean expressions. 
 }
 
 \examples{

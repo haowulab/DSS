@@ -1,7 +1,14 @@
-CHANGES IN VERSION 0.1
+CHANGES IN VERSION 0.99
 ----------------------
 
 NEW FEATURES
 
   o Initial release.
+
+CHANGES IN VERSION 0.99-1
+----------------------
+  o Fixed a bug in newSeqCountSet in dealing with the input experimental designs.
+  o Fixed a bug in computing local FDR. 
+  o Add options to model the relationship between dispersion and mean expression.
+
 

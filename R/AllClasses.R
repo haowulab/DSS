@@ -30,15 +30,28 @@ newSeqCountSet <- function(counts, designs, normalizationFactor=NULL,featureData
     }
   }
   
-  
-  ## work on input design matrix
-  if( is( designs, "matrix" ) | is(designs, "vector") ) { ## multiple factor design
-    designs <- as.data.frame( designs )
+  ## work on input design matrix. Carefully about the input design.
+  if(is(designs, "vector") ) { # single factor design
+    designs <- as.data.frame(designs )
+    colnames(designs)="designs"
+  } else  if( is( designs, "matrix" ) ) { ## multiple factor design
+    if(ncol(designs) == 1) { ## still single factor
+      designs <- as.data.frame(designs )
+      colnames(designs)="designs"
+    } else { ## input is a data frame
+      designs <- as.data.frame(designs )
+    }
   }
+  ## if there's no row names in designs, assume it has the same sequence as the columns in count matrix
+  if( is.null(rownames(designs)) & !is.null(colnames(counts)) ) {
+    rownames(designs)=colnames(counts)
+  }
+
   if( is( designs, "data.frame" ) || is( designs, "AnnotatedDataFrame" ) ) {
     stopifnot( nrow( designs ) == ncol( counts ) )
     designs <- as( designs, "AnnotatedDataFrame" )
   }
+
   
   res <- new("SeqCountSet",
              exprs = counts, 
