@@ -1,6 +1,6 @@
 Package: DSS
 Title: Dispersion shrinakge for sequencing data. 
-Version: 0.99.2
+Version: 1.0.0
 Date: 2012-8-9
 Imports: methods
 Author: Hao Wu <hao.wu@emory.edu>
