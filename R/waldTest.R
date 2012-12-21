@@ -1,8 +1,11 @@
 ## perform wald test
 ## This works for two group comparison only!
 waldTest <- function(seqData, sampleA, sampleB, equal.var=FALSE) {
+  Y0=exprs(seqData)
+  idx1=rowSums(Y0)>0 ## genes with some counts
+  
   ## compute two group means
-  Y=exprs(seqData)+0.1
+  Y=exprs(seqData) ## +0.1
   design=pData(phenoData(seqData))$designs
   k=normalizationFactor(seqData)
   if(is.matrix(k))
@@ -32,35 +35,39 @@ waldTest <- function(seqData, sampleA, sampleB, equal.var=FALSE) {
   }
   
   stat=d / std
+  stat[is.na(stat)]=0
   pval=2*(1-pnorm(abs(stat)))
-
-  ## FDR
-  normstat = (stat - median(stat)) / (IQR(stat) / 1.349)
+  
+  ## FDR esimation using locfdr. This is only for genes with non-zero counts.
+  ## Need to work on this more, since it's not very good. 
+  stat1=stat[idx1]
+  normstat = (stat1 - median(stat1)) / (IQR(stat1) / 1.349)
   fdrres = locfdr(normstat, plot=0)
-  fdr = fdrres$fdr
-  ix = sort(abs(stat), decreasing = TRUE, index.return = TRUE)$ix
-  tmp = cumsum(fdr[ix])/(1:length(fdr))
-  fdr.avg = tmp
-  fdr.avg[ix] = tmp
   fdr.global = numeric(length(normstat))
-  for (i in 1:length(normstat)){
-    ind = (abs(fdrres$mat[,"x"]) >= abs(normstat[i]))
-    F0l = sum(fdrres$mat[ind,"f0"] * fdrres$fp0["mlest", 3])
-    Fl = sum(fdrres$mat[ind,"f"])
-    fdr.global[i] = F0l / Fl
+  xx = fdrres$mat[, "x"]
+  leftbreaks = xx - (xx[2]-xx[1])/2; leftbreaks[1] = min(normstat)
+  rightbreaks = xx + (xx[2]-xx[1])/2; rightbreaks[length(rightbreaks)] = max(normstat)
+  for (i in 1:length(normstat)) {
+    ind = ((leftbreaks <= (-1)*abs(normstat[i])) | (rightbreaks >= abs(normstat[i])))
+    F1l = sum(fdrres$mat[ind,"p1f1"])
+    Fl = sum(fdrres$mat[ind, "f"])
+    fdr.global[i] = 1 - F1l/Fl
   }
-  ## some times (e.g., when there's no true DE) localfdr isn't stable and will
-  ## generate p-values bigger than one. Fix it.
-  fdr.global[fdr.global>1]=1
+  
+  ## go back to all genes. Genes with all 0 counts will have local and global FDR NA. 
+  fdr0=rep(NA, nrow(Y))
+  fdr.global0=rep(NA, nrow(Y))
+  fdr0[idx1]=fdrres$fdr
+  fdr.global0[idx1]=fdr.global
   
   ## generate a data frame of reports
-  lfc=log((muA+0.5)/(muB+0.5))
-  difExpr=muA-muB
+  lfc=log((muA+0.5)/(muB+0.5)) ## log fold change
+  difExpr=muA-muB ## difference in expressions
   genes=featureData(seqData)
   if(!is.null(genes))
     genes=as(genes, "data.frame")
   result=data.frame(geneIndex=1:nrow(Y), muA=muA, muB=muB, lfc=lfc, difExpr=difExpr, stats=stat,
-    pval=pval, local.fdr=fdr, fdr=fdr.global, genes)
+    pval=pval, local.fdr=fdr0, fdr=fdr.global0, genes)
   ix=sort(abs(result[,"stats"] ), decreasing=TRUE, index.return=TRUE)$ix
   result=result[ix,]
   ## fix the global FDR for first gene

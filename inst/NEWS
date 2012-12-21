@@ -11,4 +11,9 @@ CHANGES IN VERSION 0.99-1
   o Fixed a bug in computing local FDR. 
   o Add options to model the relationship between dispersion and mean expression.
 
+CHANGES IN VERSION 1.2.0-1
+----------------------
+  o Fixed a bug in computing local FDR. 
+  o Change the way to deal with genes with all 0 counts. Now the FDRs for these genes 
+    are assigned as 0. 
 

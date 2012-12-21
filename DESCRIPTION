@@ -1,7 +1,7 @@
 Package: DSS
-Title: Dispersion shrinakge for sequencing data. 
-Version: 1.1.0
-Date: 2012-8-9
+Title: Dispersion shrinakge for sequencing data.
+Version: 1.2.0
+Date: 2012-12-21
 Imports: methods
 Author: Hao Wu <hao.wu@emory.edu>
 Depends: Biobase, locfdr
@@ -12,4 +12,5 @@ Description: DSS is an R library performing the differential expression analysis
   showed that DSS performs favorabily compared to DESeq and edgeR when
   the variation of biological variances is large.
 License: GPL
-biocViews: HighThroughputSequencing, RNAseq, ChIPseq, DifferentialExpression
+biocViews: HighThroughputSequencing, RNAseq, ChIPseq,
+        DifferentialExpression
