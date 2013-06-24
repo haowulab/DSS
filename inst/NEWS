@@ -17,3 +17,6 @@ CHANGES IN VERSION 1.2.0-1
   o Change the way to deal with genes with all 0 counts. Now the FDRs for these genes 
     are assigned as 0. 
 
+CHANGES IN VERSION 1.6.0
+----------------------
+  o Implemented methods for detecting differentially methylated loci (DML). 

@@ -26,7 +26,7 @@
 \author{Hao Wu \\[1em]Department of Biostatistics and Bioinformatics\\ Emory University\\
   Atlanta, GA 303022 \\ [1em] \texttt{hao.wu@emory.edu}}
 
-\title{\textsf{\textbf{Differential expression with DSS \\ (Dispersion Shrinkage for Sequencing data)}}}
+\title{\textsf{\textbf{Differential analyses with DSS}}}
 
 
 \begin{document}
@@ -35,76 +35,95 @@
 
 %% abstract
 \begin{abstract}
-This vignette introduces the use of Bioconductor package 
+This vignette introduces the use of the Bioconductor package 
 DSS ({\underline D}ispersion {\underline S}hrinkage 
-for {\underline S}equencing data), which is designed primarily for 
-differential expression detection for count data from RNA-seq. 
-DSS uses new procedures to estimate and shrink 
-gene-specific dispersions, then conduct Wald test for
-hypothesis testing. Compared to existing methods 
-(DESeq and edgeR) DSS provides excellent 
-statistical and computational performance, especially
-when overall dispersion level is high in data.
+for {\underline S}equencing data), which is designed for 
+differential analysis based on high-throughput sequencing data. 
+It performs differential expression analyses for RNA-seq, 
+and differential methylation analyses for bisulfite sequencing (BS-seq) data. 
+The core of DSS is a new procedure to estimate and shrink 
+gene- or CpG site-specific dispersions, then conduct Wald tests for
+differential expression/methylation. Compared with existing methods, DSS provides excellent 
+statistical and computational performance.
 \end{abstract}
 
 
-\section{Introdution}
-RNA-seq is a new technology for measuring the abundance of RNA products  in a biological sample.
-Compared to gene expression microarrays, it provides better dynamic ranges and lower signal-to-noise ratio,
-so it's quickly becoming the technology of choice for gene expression quantifications. 
-One of the fundamental questions for RNA-seq data analyses
-is the regulation of gene expression under different biological contexts.
-Therefore identifying differential expression (DE) remains a key
-task in studying gene expression. 
+\section{Introduction}
+Recent advances in high-throughput sequencing technology have
+revolutionized genomic research. For example, 
+RNA-seq is a new technology for measuring the abundance of RNA products.
+Compared to gene expression microarrays, 
+it provides a better dynamic range and lower signal-to-noise ratio.
+Bisulfite sequencing (BS-seq) is a new technology for measuring DNA methylation. 
+Compared to capture-based methods such as MeDIP-seq, 
+it provides single-base resolution and eliminates biases associated with CpG density. 
 
-The major distinction of RNA-seq data compared to microarray is that the 
-expression measurements are counts. Most of the existing statistical methods
-model the count data as over-dispersed Poisson, or negative binomial. 
-The over dispersion parameters, which represent  the biological variations for
-replicates within a treatment group, play a central role in the DE detection algorithm.
-There have been several statistical methods and  software tools available 
-to perform DE detection from RNA-seq data, each with different procedures 
-for dispersion estimation and hypothesis testing. 
+Fundamental questions for RNA-seq or BS-seq data analyses
+are whether gene expression regulation or DNA methylation dynamics
+vary under different biological contexts. 
+Identifying sites or regions exhibiting differential expression (DE) or differential methylation (DM)
+are thus key tasks in functional genomics research.
 
-Here we present a new DE detection algorithm. First the gene specific 
-dispersions are estimated through a method of moment estimator. 
-Then data from all genes were combined to shrink dispersions
-through a penalized likelihood  approach. Finally 
-hypothesis testing is conducted using a Wald test. 
-Results showed that the new method provide excellent performance
-compared to existing method, especially when overall dispersion level is high.
-The method is implemented in the Bioconductor package 
-DSS, referring to \underline{D}ispersion \underline{S}hrinkage 
-for \underline{S}equencing data. 
+RNA- or BS-seq experiments typically have a limited number of biological
+replicates due to cost constraints. This can lead to unstable estimation of
+within group variance, and subsequently undesirable results from hypothesis testing. 
+Variance shrinkage methods have been widely used in DE analyses based on
+microarray data. The methods are typically based on a Bayesian hierarchical model, 
+with a prior imposed on the gene-specific variances to provide 
+a basis for information sharing across all genes/CpG sites. 
+In these models, shrinkage is achieved for variance estimation.
+Using shrunk variance in hypothesis tests has been shown to provide better results. 
 
-Currently DSS only support comparison of expressions from
-two treatment groups. Methods for more advanced design
-is under development and will be implemented soon.
+A distinct feature of RNA-seq or BS-seq data is that the measurements are
+in the form of counts. These data are often assumed to be from the Poisson (for RNA-seq)
+or Binomial (for BS-seq) distributions. 
+Unlike continuous distributions such as the Gaussian distribution, 
+the variances depend on means in these discrete distributions. 
+This implies that the sample variances do not account for biological variation between replicates,
+and shrinkage cannot be applied on variances directly. 
+
+In contrast, we assume that our count data come from the Gamma-Poisson (RNA-seq) or Beta-Binomial (BS-seq) distribution.
+These distributions can be parameterized by a mean and an over dispersion parameter.  
+The over dispersion parameters, which represent the biological variation for
+replicates within a treatment group, play a central role in the differential analyses.
+
+Here we present a new DE/DM detection algorithm, where shrinkage is performed on the dispersion parameters. 
+We first impose a log-normal prior on the dispersions, 
+and then combine data from all genes/CpG sites to shrink dispersions
+through a penalized likelihood  approach. 
+Finally, we construct Wald tests to test each gene/site for differential expression/methylation. 
+Our results show that the new method provides excellent performance
+compared to existing methods, especially when the overall dispersion level is high
+or the number of replicates is small. 
+
+Currently DSS only supports comparison of expression or methylation from
+two treatment groups. Methods for more advanced study designs
+are under development and will be implemented soon.
 
 
-\section{Getting started to use {\tt DSS}}
-Required inputs for DSS are (1) gene expressions as a matrix of integers, 
-rows  are for genes and columns are for samples;
+\section{Using {\tt DSS} for differential expression analysis}
+Required inputs for DSS are (1) gene expression values as a matrix of integers, 
+rows are for genes and columns are for samples;
 and (2) a vector representing experimental designs. The length of the
 design vector must match the number of columns of input counts.
 Optionally, normalization factors or additional annotation for genes 
 can be supplied. 
 
-The basic data container  in the package is {\tt SeqCountSet} class, 
+The basic data container in the package is {\tt SeqCountSet} class, 
 which is directly inherited from {\tt ExpressionSet} class 
 defined in {\tt Biobase}. An object of the class contains all necessary
-information for a DE analysis: gene expressions, experimental designs,
+information for a DE analysis: gene expression values, experimental designs,
 and additional annotations. 
 
-A typical DE analysis contain following simple steps. 
+A typical DE analysis contains the following simple steps. 
 \begin{enumerate}
-\item Create a  {\tt SeqCountSet} object using {\tt newSeqCountSet}.
+\item Create a {\tt SeqCountSet} object using {\tt newSeqCountSet}.
 \item Estimate normalization factor using {\tt estNormFactors}. 
 \item Estimate and shrink gene-wise dispersion using {\tt estDispersion}
-\item Two group comparison using {\tt waldTest}. 
+\item Two-group comparison using {\tt waldTest}. 
 \end{enumerate}
 
-The usage of DSS is demonstrated by below simple simulation. 
+The usage of DSS is demonstrated in the simple simulation below. 
 \begin{enumerate}
 \item First load in the library, and make a {\tt SeqCountSet}
 object from some counts for 2000 genes and 6 samples. 
@@ -127,13 +146,63 @@ seqData=estNormFactors(seqData)
 <<>>=
 seqData=estDispersion(seqData)
 @ 
-\item With normalization factors and dispersions ready, two group comparison can be 
-conducted via a wald test:
+\item With the normalization factors and dispersions ready, the two-group comparison can be 
+conducted via a Wald test:
 <<>>=
 result=waldTest(seqData, 0, 1)
 head(result,5)
 @
 \end{enumerate}
+
+
+\section{Using {\tt DSS} for differential methylation analysis}
+For BS-seq experiments, after sequence alignment 
+and proper processing, the BS-seq data can be
+summarized with following information for each C position (mostly CpG
+sites, with the occasional CH): chromosome number, genomic coordinate, total
+number of reads covering the position, and number of reads showing
+methylation at this position. For a sample, this information 
+needs to be saved in a simple text file, with each row representing a CpG site. 
+
+DML detection using {\tt DSS} starts from several such text files. 
+A typical DML detection contains two simple steps.
+Below we will use files distributed with the package 
+to illustrate the usage of the package. 
+
+\begin{enumerate}
+\item Load in library. Read in text files and create {\tt BSseq} objects for two conditions.
+This step requires {\tt bsseq} Bioconductor package. {\tt BSseq} class is defined in that package.
+
+<<>>=
+library(DSS)
+require(bsseq)
+path <- file.path(system.file(package="DSS"), "extdata")
+dat1.1 <- read.table(file.path(path, "cond1_1.txt"), header=TRUE)
+dat1.2 <- read.table(file.path(path, "cond1_2.txt"), header=TRUE)
+dat2.1 <- read.table(file.path(path, "cond2_1.txt"), header=TRUE)
+dat2.2 <- read.table(file.path(path, "cond2_2.txt"), header=TRUE)
+BS1 <- makeBSseqData( list(dat1.1, dat1.2), paste("cond1",1:2,sep=".") )
+BS2 <- makeBSseqData( list(dat2.1, dat2.2), paste("cond2",1:2,sep=".") )
+BS1
+@ 
+
+\item Detect DML by calling {\tt callDML} function.
+<<>>=
+result <- callDML(BS1, BS2)
+head(result)
+@ 
+
+\end{enumerate}
+
+Currently DSS only works for detecting differentially methylated loci (DML). 
+This means that a hypothesis test is conducted at each CpG site,
+and the tests are performed independently. 
+The spatial correlations among CpG sites are ignored in the current version. 
+For whole genome BS-seq data, it might be better to apply a smoothing technique 
+to combine information across nearby CpG sites and improve the estimation of mean 
+methylation levels. This is under development and will be implemented in the 
+near future. 
+
 
 \section{Session Info}
 <<echo=TRUE, result=TRUE>>=

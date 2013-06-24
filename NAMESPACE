@@ -1,15 +1,19 @@
 import( Biobase )
+import( bsseq )
 
+importClassesFrom(bsseq, BSseq)
 exportClasses("SeqCountSet") 
 exportMethods(
-   normalizationFactor, "normalizationFactor<-",
-   dispersion, "dispersion<-"
-)
+              normalizationFactor, "normalizationFactor<-",
+              dispersion, "dispersion<-"
+              )
 
 export(
-   newSeqCountSet,
-   estDispersion, 
-   estNormFactors, 
-   waldTest
+       newSeqCountSet,
+       estDispersion, 
+       estNormFactors, 
+       waldTest,
+       callDML,
+       makeBSseqData
 )
 
