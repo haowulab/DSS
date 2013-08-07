@@ -46,8 +46,9 @@
       \describe{
 	\item{\code{counts}}{A matrix of integers with rows corresponding to
 	  genes and columns for samples.}
-	\item{\code{designs}}{A vector representing experimental
-	  design. The length of the vector must match the number of columns of
+	\item{\code{designs}}{A vector or data frame representing experimental
+	  design. The length of the vector or number of rows of the
+	  data frame must match the number of columns of
 	  input counts. This field can be accessed using 'pData' function.}
 	\item{\code{normalizationFactor}}{A vector or matrix of
 	  normalization	factors for the counts. }
@@ -87,5 +88,14 @@ seqData=newSeqCountSet(counts, designs)
 seqData
 pData(seqData)
 head(exprs(seqData))
+
+## multiple factor designs
+design=data.frame(gender=c(rep("M",2*nreps), rep("F",2*nreps)), strain=rep(c("WT", "Mutant"),2*nreps))
+X=model.matrix(~gender+strain, data=design)
+counts=matrix(rpois(800, 10), ncol=8)
+seqData=newSeqCountSet(counts, as.data.frame(X))
+seqData
+pData(seqData)
+
 }
 \keyword{classes}

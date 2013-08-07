@@ -102,6 +102,8 @@ are under development and will be implemented soon.
 
 
 \section{Using {\tt DSS} for differential expression analysis}
+
+\subsection{Single factor experiment}
 Required inputs for DSS are (1) gene expression values as a matrix of integers, 
 rows are for genes and columns are for samples;
 and (2) a vector representing experimental designs. The length of the
@@ -154,7 +156,49 @@ head(result,5)
 @
 \end{enumerate}
 
+\subsection{Multifactor experiment}
+{\tt DSS} provides functionalities for dispersion shrinkage for multifactor experimental designs. 
+Downstream model fitting (through genearlized linear model)
+and hypothesis testing can be performed using other packages such as {\tt edgeR},
+with the dispersions estimated from DSS. 
 
+Below is an example, based a simple simulation, to illustrate the DE analysis of 
+a crossed design.  
+\begin{enumerate}
+\item First simulate data for a 2x2 crossed experiments. Note the 
+counts are randomly generated.
+<<echo=TRUE, result=TRUE>>=
+library(DSS)
+library(edgeR)
+counts=matrix(rpois(800, 10), ncol=8)
+design=data.frame(gender=c(rep("M",4), rep("F",4)), strain=rep(c("WT", "Mutant"),4))
+X=model.matrix(~gender+strain, data=design)
+@ 
+
+\item make SeqCountSet, then estimate size factors and  dispersion 
+<<echo=TRUE>>=
+seqData=newSeqCountSet(counts, as.data.frame(X))
+seqData=estNormFactors(seqData)
+seqData=estDispersion(seqData)
+@ 
+
+\item Using edgeR's function to do glm model fitting, but plugging in the estimated size factors and  dispersion
+from DSS. 
+<<>>=
+fit.edgeR <- glmFit(counts, X, lib.size=normalizationFactor(seqData),
+             dispersion=dispersion(seqData))
+@ 
+
+\item Using edgeR's function to do hypothesis testing on the second parameter of the model (gender).
+<<echo=TRUE, result=TRUE>>=
+lrt.edgeR <- glmLRT(fit.edgeR, coef=2)
+head(lrt.edgeR$table)
+@ 
+
+\end{enumerate}
+
+
+%%% DML detection
 \section{Using {\tt DSS} for differential methylation analysis}
 For BS-seq experiments, after sequence alignment 
 and proper processing, the BS-seq data can be

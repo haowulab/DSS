@@ -20,3 +20,10 @@ CHANGES IN VERSION 1.2.0-1
 CHANGES IN VERSION 1.6.0
 ----------------------
   o Implemented methods for detecting differentially methylated loci (DML). 
+
+CHANGES IN VERSION 1.7.0
+----------------------
+  o Added functionalities for multiple factor experimental design. 
+    Currently edgeR functions are used for glm fitting and hypothesis testing.
+    DSS only provide functions for dispersion estimation.
+

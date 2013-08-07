@@ -3,10 +3,18 @@
 estDispersion <- function(seqData, trend=FALSE) {
   if(!is(seqData, "SeqCountSet"))
     stop("Input must be an object of SeqCountSet class!")
-  if(trend) 
-    seqData=estDispersion.trend(seqData)
-  else
-    seqData=estDispersion.notrend(seqData)
+  
+  ## design matrix
+  design <- pData(seqData)
+  if(ncol(design) == 1) { ## single factor design
+    if(trend) 
+      seqData=estDispersion.trend(seqData)
+    else
+      seqData=estDispersion.notrend(seqData)
+  } else { ## multiple factor
+    seqData=estDispersion.multiFactor(seqData)
+  }
+  
   seqData
 }
 
