@@ -90,7 +90,7 @@ pData(seqData)
 head(exprs(seqData))
 
 ## multiple factor designs
-design=data.frame(gender=c(rep("M",2*nreps), rep("F",2*nreps)), strain=rep(c("WT", "Mutant"),2*nreps))
+design=data.frame(gender=c(rep("M",4), rep("F",4)), strain=rep(c("WT", "Mutant"),4))
 X=model.matrix(~gender+strain, data=design)
 counts=matrix(rpois(800, 10), ncol=8)
 seqData=newSeqCountSet(counts, as.data.frame(X))
