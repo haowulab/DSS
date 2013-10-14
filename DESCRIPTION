@@ -1,6 +1,6 @@
 Package: DSS
 Title: Dispersion shrinakge for sequencing data.
-Version: 1.8.0
+Version: 1.9.0
 Date: 2013-08-06
 Imports: methods,bsseq,edgeR
 Author: Hao Wu <hao.wu@emory.edu>
