@@ -232,20 +232,30 @@ BS1
 
 \item Detect DML by calling {\tt callDML} function.
 <<>>=
-result <- callDML(BS1, BS2)
-head(result)
+dmls <- callDML(BS1, BS2)
+head(dmls)
 @ 
+
+\item Based on the DML results, detect DMR by calling {\tt callDMR} function. 
+<<>>=
+dmrs <- callDMR(dmls, p.threshold=0.001)
+head(dmrs)
+@ 
+
 
 \end{enumerate}
 
-Currently DSS only works for detecting differentially methylated loci (DML). 
-This means that a hypothesis test is conducted at each CpG site,
+For differentially methylated loci (DML) detection, 
+a hypothesis test is conducted at each CpG site,
 and the tests are performed independently. 
-The spatial correlations among CpG sites are ignored in the current version. 
-For whole genome BS-seq data, it might be better to apply a smoothing technique 
-to combine information across nearby CpG sites and improve the estimation of mean 
-methylation levels. This is under development and will be implemented in the 
-near future. 
+The differentially methylated region (DMR) detection
+is based on the DML test results. Regions will CpG sites being
+statistically significant are detected as DMRs. Nearby DMRs are
+merged into longer ones. Some restrictions including the minimum
+length, minimum number of CpG sites, etc. are applied. Note that
+this function doesn't consider the spatial correlation among
+nearby CpG sites, which is an important aspect in the whole genome 
+BS-seq data. This will be in the future development plan.
 
 
 \section{Session Info}
