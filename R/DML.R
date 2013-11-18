@@ -43,7 +43,7 @@ callDML <- function(BS1, BS2, equal.disp=FALSE, threshold=0) {
   x1 <- as.matrix(alldata[,ix.X1]); n1 <- as.matrix(alldata[,ix.N1])
   x2 <- as.matrix(alldata[,ix.X2]); n2 <- as.matrix(alldata[,ix.N2])
 
-  ## compute means. Spatial correlations are ignored
+  ## compute means. Spatial correlations are ignored at this time
   ## the means need to be of the same dimension as X and N
   estprob1 <- compute.mean(x1, n1);   estprob2 <- compute.mean(x2, n2)
 
@@ -74,8 +74,9 @@ waldTest.DML <- function(x1,n1,estprob1, x2,n2, estprob2, prior1, prior2,
   ## - this part is slow. Should be computed parallely
   if(equal.disp) { ## equal dispersion. Combine two groups and shrink
     x <- cbind(x1, x2); n <- cbind(n1, n2)
-    estprob <- cbind(matrix(rep(estprob1,ncol(x1)), ncol=ncol(x1)),
-                     matrix(rep(estprob1,ncol(x2)), ncol=ncol(x2)))
+#    estprob <- cbind(matrix(rep(estprob1,ncol(x1)), ncol=ncol(x1)),
+#                     matrix(rep(estprob1,ncol(x2)), ncol=ncol(x2)))
+    estprob <- cbind(estprob1, estprob2)
     shrk.phi1 <- shrk.phi2 <- dispersion.shrinkage(x, n, prior1, estprob)
     
   } else { ## shrink two groups separately 
@@ -84,7 +85,7 @@ waldTest.DML <- function(x1,n1,estprob1, x2,n2, estprob2, prior1, prior2,
   }
 
   ## Wald test
-  wald <- compute.waldStat(estprob1, estprob2, n1, n2, shrk.phi1, shrk.phi2)
+  wald <- compute.waldStat(estprob1[,1], estprob2[,1], n1, n2, shrk.phi1, shrk.phi2)
 
   ## obtain posterior probability that the differnce of two means are greater than a threshold
   if( threshold>0 ) {
@@ -100,6 +101,8 @@ waldTest.DML <- function(x1,n1,estprob1, x2,n2, estprob2, prior1, prior2,
 ###############################################
 ## compute Wald test statistics
 ## Need to deal with missing data
+## Currently work for two conditions.
+## Condition means are assumed to be the same among replicates.
 ###############################################
 compute.waldStat <- function(estprob1, estprob2, n1, n2, phi1, phi2) {
   dif <- estprob1 - estprob2

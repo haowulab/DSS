@@ -94,7 +94,7 @@ mergeData.counts <- function(n1, x1, gr1, n2, x2, gr2) {
   
   dat1 <- data.frame(chr=as.character(seqnames(gr1)), pos=start(gr1), x1, n1)
   dat2 <- data.frame(chr=as.character(seqnames(gr2)), pos=start(gr2), x2, n2)
-  alldat <- merge(dat1, dat2, all=TRUE)
+  alldat <- merge(dat1, dat2, all=FALSE) ## only keep the ones with data in both samples
   alldat[is.na(alldat)] <- 0
 
   return(alldat)
@@ -121,11 +121,13 @@ rowVars <- function (x, center = NULL, ...) {
 ######################################################################################
 ## function to compute means. If it's based on each CG site, just take an average.
 ## If include smoothing, use BSmoooth.
+## This function is to be expanded.
 ######################################################################################
 compute.mean <- function(X, N) {
-  p <- (rowSums(X)+1)/(rowSums(N)+2)
-  res <- matrix(rep(p, ncol(X)), ncol=ncol(X))
-  return(p)
+  ## shrink the mean estimates a little bit.
+  p <- (rowSums(X)+0.5)/(rowSums(N)+1)
+  res <- matrix(rep(p, ncol(X)), ncol = ncol(X))
+  return(res)
 }
 
 
@@ -141,21 +143,25 @@ dispersion.shrinkage <- function(X, N, prior, estprob) {
   plik.logN <- function(size, X,mu,m0,tau,phi) {
     -(sum(dbb(size, X, mu, exp(phi))) + dnorm(phi, mean=m0, sd=tau, log=TRUE))
   }
-  shrk.phi=rep(NA,nrow(N))
+  ## for CG sites with no coverage, use prior 
+  shrk.phi=exp(rep(prior[1],nrow(N)))
 
-  ## deal with estprob, make it a matrix
-  estprob <- as.matrix(estprob)
+  ## deal with estprob, make it a matrix if not.
+  if(!is.matrix(estprob))
+    estprob <- as.matrix(estprob)
   
   ## skip those without coverage, or no replicates.
-  ix <- rowSums(N>0) > 1
+  ix <- rowSums(N>0) > 0
   X2 <- X[ix, ,drop=FALSE]; N2 <- N[ix,,drop=FALSE]; estprob2 <- estprob[ix,,drop=FALSE]
-  
+  shrk.phi2 <- rep(0, nrow(X2))
   for(i in 1:nrow(X2)) {
     ## I can keep the 0's with calculation. They don't make any difference.
     shrk.one=optimize(f=plik.logN, size=N2[i,], X=X2[i,], mu=estprob2[i,], m0=prior[1], tau=prior[2],
       interval=c(-5, log(0.99)),tol=1e-4)
-    shrk.phi[i]=exp(shrk.one$minimum)
+    shrk.phi2[i]=exp(shrk.one$minimum)
   }
+  shrk.phi[ix] <- shrk.phi2
+  
   return(shrk.phi)
 }
 
