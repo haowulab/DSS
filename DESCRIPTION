@@ -1,12 +1,13 @@
 Package: DSS
 Title: Dispersion shrinakge for sequencing data.
-Version: 1.9.1
-Date: 2013-08-06
+Version: 2.0.0
+Date: 2013-11-16
 Imports: methods,bsseq,edgeR
 Author: Hao Wu <hao.wu@emory.edu>
 Depends: Biobase, locfdr
 Maintainer: Hao Wu <hao.wu@emory.edu>
-Description: DSS is an R library performing differntial analysis for count-based sequencing data. It detectes differentially expressed genes (DEGs) from RNA-seq, and differentially methylated loci or regions (DML/DMRs) from bisulfite sequencing (BS-seq). The core of DSS is a new dispersion shrinkage method for estimating the dispersion parameter from Gamma-Poisson or Beta-Binomial distributions. 
+Description: DSS is an R library performing differntial analysis for count-based sequencing data. It detectes differentially expressed genes (DEGs) from RNA-seq, and differentially methylated loci or regions (DML/DMRs) from bisulfite sequencing (BS-seq). The core of DSS is a new dispersion shrinkage method for estimating the dispersion parameter from Gamma-Poisson or Beta-Binomial distributions.
 License: GPL
-biocViews: HighThroughputSequencing, RNAseq, ChIPseq, DNAMethylation, 
+biocViews: HighThroughputSequencing, RNAseq, ChIPseq, DNAMethylation,
         DifferentialExpression
+
