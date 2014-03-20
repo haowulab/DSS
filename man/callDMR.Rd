@@ -59,9 +59,6 @@ callDMR(DMLresult, p.threshold, minlen = 50, minCG = 3, dis.merge = 50, pct.sig 
   conditions.} 
 }
 
-\details{
-}
-
 \author{
   Hao Wu <hao.wu@emory.edu>
 }

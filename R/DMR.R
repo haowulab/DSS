@@ -2,11 +2,13 @@
 ## function to call DMR from the DML test results
 ########################################################
 #### function to call DMR
-callDMR <- function(DMLresult, p.threshold, minlen=50, minCG=3, dis.merge=100, pct.sig=0.5) {
-  
-  dmrs <- findBumps(DMLresult$chr, DMLresult$pos, DMLresult$pval,
-                    cutoff=p.threshold, sep=1000,dis.merge=dis.merge,
-                    pct.sig=pct.sig)
+callDMR <- function(DMLresult, p.threshold, minlen=50, minCG=3, dis.merge=50, pct.sig=0.5) {
+
+  if(dis.merge > minlen)
+    dis.merge = minlen
+  dmrs = findBumps(DMLresult$chr, DMLresult$pos, DMLresult$pval,
+    cutoff=p.threshold, sep=1000,dis.merge=dis.merge,
+    pct.sig=pct.sig)
   
   ## compute average methylation levels in two groups
   if(nrow(dmrs)==0) {
