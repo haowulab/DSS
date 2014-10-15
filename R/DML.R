@@ -6,23 +6,22 @@
 ## Maybe I should only report significant CG sites.
 ##
 ######################################################################
-require(bsseq)
 
 ######################################
 ## wrapper function for DML test
 ######################################
-DMLtest <- function(BSobj, group1, group2, BS1, BS2, equal.disp=FALSE, smoothing=FALSE,
+DMLtest <- function(BSobj, group1, group2, equal.disp=FALSE, smoothing=FALSE,
                     smoothing.method=c("ma", "BSmooth"), smoothing.span=500, ...) {
   ## grab two group data
   tmp <- getBSseqIndex(sampleNames(BSobj), group1, group2)
   BS1 <- BSobj[,tmp$group1]
   BS2 <- BSobj[,tmp$group2]
-  
-  ## Check the consistence of inputs 
+
+  ## Check the consistence of inputs
   nreps1 <- dim(BS1)[2]
   nreps2<- dim(BS2)[2]
   if( (nreps1==1 | nreps2==1) ) { ## singel replicate case
-    if(!smoothing ) 
+    if(!smoothing )
       stop("There is no biological replicates. Please set smoothing=TRUE and retry.")
   }
 
@@ -41,7 +40,7 @@ DMLtest <- function(BSobj, group1, group2, BS1, BS2, equal.disp=FALSE, smoothing
 getBSseqIndex <- function(sName, group1, group2) {
   check <- function(group, id) {
     thisGrp = paste("group", id, sep="")
-    
+
     if (is.character(group)) {
       if(!all(group %in% sName))
         stop("Some sample names not found in", thisGrp)
@@ -57,15 +56,15 @@ getBSseqIndex <- function(sName, group1, group2) {
 
   group1 <- check(group1, 1)
   group2 <- check(group2, 2)
-  
+
   if(length(intersect(group1, group2)) > 0)
     stop("Two groups have common sample.")
-    
+
   if(length(group1) <= 0)
     stop("group1 not found.")
   if(length(group2) <= 0)
     stop("group2 not found.")
-  
+
   list(group1=group1, group2=group2)
 }
 
@@ -101,11 +100,11 @@ DMLtest.noSmooth <- function(BS1, BS2, equal.disp=FALSE) {
   allchr <- as.character(seqnames(BS1))
   allpos <- start(BS1)
   wald <- waldTest.DML(x1, n1, estprob1, x2, n2, estprob2,
-                       prior1, prior2, threshold, equal.disp=equal.disp,
+                       prior1, prior2, equal.disp=equal.disp,
                        smoothing=FALSE, allchr=allchr, allpos=allpos)
-  
+
   return(wald)
-  
+
 }
 
 ######################################
@@ -129,7 +128,7 @@ DMLtest.Smooth <- function(BS1, BS2, equal.disp=FALSE,
   estprob2 <- matrix(rep(mu2, nreps2), ncol=nreps2)
 
   ## estimate priors from counts -
-  ## Maybe I should modify the way to estimate prior because this is the smoothing version. 
+  ## Maybe I should modify the way to estimate prior because this is the smoothing version.
   if(equal.disp | nreps1==1 | nreps2==1) {  ## assume equal dispersion in two conditions
     prior1 <- est.prior.logN(cbind(x1,x2), cbind(n1,n2))
     prior2 <- prior1
@@ -137,7 +136,7 @@ DMLtest.Smooth <- function(BS1, BS2, equal.disp=FALSE,
     prior1 <- est.prior.logN(x1, n1)
     prior2 <- est.prior.logN(x2, n2)
   }
-    
+
   allchr <- as.character(seqnames(BS1))
   allpos <- start(BS1)
   ## perform Wald test
@@ -158,17 +157,17 @@ waldTest.DML <- function(x1,n1,estprob1, x2,n2, estprob2, prior1, prior2,
 
   if(equal.disp)
     prior2 <- prior1
-  
+
   ## estimated shrunk dispersions
   ## - this part is slow. Should be computed parallely. Will implement later.
   cat("Estimating dispersion for each CpG site, this will take a while ...\n")
-  
+
   if(equal.disp) { ## equal dispersion. Combine two groups and shrink
     x <- cbind(x1, x2); n <- cbind(n1, n2)
     estprob <- cbind(estprob1, estprob2)
     shrk.phi1 <- shrk.phi2 <- dispersion.shrinkage(x, n, prior1, estprob)
-    
-  } else { ## shrink two groups separately 
+
+  } else { ## shrink two groups separately
     shrk.phi1 <- dispersion.shrinkage(x1, n1, prior1, estprob1)
     shrk.phi2 <- dispersion.shrinkage(x2, n2, prior2, estprob2)
   }
@@ -177,7 +176,7 @@ waldTest.DML <- function(x1,n1,estprob1, x2,n2, estprob2, prior1, prior2,
   if(smoothing) {
     wald <- compute.waldStat.Smooth(estprob1[,1], estprob2[,1], n1, n2, shrk.phi1, shrk.phi2,
                                     smoothing.span, allchr, allpos)
-  } else 
+  } else
   wald <- compute.waldStat.noSmooth(estprob1[,1], estprob2[,1], n1, n2, shrk.phi1, shrk.phi2)
 
   ## combine with chr/pos and output
@@ -185,7 +184,7 @@ waldTest.DML <- function(x1,n1,estprob1, x2,n2, estprob2, prior1, prior2,
   ## remove NA entries - Maybe I should keep them so result have the same dimension as inputs???
   ii <- !is.na(result$stat)
   result <- result[ii,]
-  
+
   ## sort result according to chr and pos - maybe this is not important??
   ix <- sortPos(result$chr, result$pos)
   result <- result[ix,]
@@ -193,7 +192,7 @@ waldTest.DML <- function(x1,n1,estprob1, x2,n2, estprob2, prior1, prior2,
 }
 
 ###########################################################
-## compute Wald test statistics when there's no smoothing 
+## compute Wald test statistics when there's no smoothing
 ###########################################################
 compute.waldStat.noSmooth <- function(estprob1, estprob2, n1, n2, phi1, phi2) {
   dif <- estprob1 - estprob2
@@ -208,7 +207,7 @@ compute.waldStat.noSmooth <- function(estprob1, estprob2, n1, n2, phi1, phi2) {
   stat <- dif/se
   pval <- 2 * (1 - pnorm(abs(stat))) ## p-value for hypothesis testing
   fdr <- p.adjust(pval, method="fdr")
-  
+
   data.frame(mu1=estprob1, mu2=estprob2, diff=dif, diff.se=se, stat=stat,
              phi1=phi1, phi2=phi2, pval=pval, fdr=fdr)
 }
@@ -224,8 +223,8 @@ compute.waldStat.Smooth <- function(estprob1, estprob2, n1, n2, phi1, phi2, smoo
                                     allchr, allpos) {
   dif <- estprob1 - estprob2
   n1m <- rowSums(n1);    n2m <- rowSums(n2)
-  vx1 <- rowSums(n1*estprob1*(1-estprob1)*(1+(n1-1)*phi1)) 
-  vx2 <- rowSums(n2*estprob2*(1-estprob2)*(1+(n2-1)*phi2)) 
+  vx1 <- rowSums(n1*estprob1*(1-estprob1)*(1+(n1-1)*phi1))
+  vx2 <- rowSums(n2*estprob2*(1-estprob2)*(1+(n2-1)*phi2))
   flag <- "sum"
   n1m.sm <- smooth.chr(as.double(n1m), smoothing.span, allchr, allpos, flag)
   n2m.sm <- smooth.chr(as.double(n2m), smoothing.span, allchr, allpos, flag)
@@ -244,12 +243,12 @@ compute.waldStat.Smooth <- function(estprob1, estprob2, n1, n2, phi1, phi2, smoo
   data.frame(mu1=estprob1, mu2=estprob2, diff=dif, diff.se=se, stat=stat,
              phi1=phi1, phi2=phi2, pval=pval, fdr=fdr)
 }
-  
+
 ################
 ## call DML
 ################
 callDML <- function(DMLresult, delta=0, p.threshold=1e-5) {
-  
+
   ## obtain posterior probability that the differnce of two means are greater than a threshold
   if( delta > 0 ) {
     p1 <- pnorm(DMLresult$diff-delta, sd=DMLresult$diff.se) ## Pr(delta.mu > delta)
@@ -260,10 +259,10 @@ callDML <- function(DMLresult, delta=0, p.threshold=1e-5) {
   } else {
     scores <- DMLresult$pval
   }
-  
+
   ix <- scores < p.threshold
   result <- DMLresult[ix,]
-  
+
   ## sort by score
   ii <- sort(scores[ix], index.return=TRUE)$ix
   result[ii,]

@@ -2,7 +2,7 @@
 ## We need the splines library, so we load it.
 ##
 
-.onLoad <- function(lib, pkg) require(splines)
+## .onLoad <- function(lib, pkg) require(splines)
 
 locmle <-
 function(z, xlim , Jmle = 35, d = 0, s = 1, ep = 1/100000, sw = 0, Cov.in)

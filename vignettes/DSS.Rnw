@@ -8,13 +8,13 @@
 \usepackage[a4paper]{geometry}
 \usepackage{hyperref,graphicx}
 \textwidth=6in
-\textheight=8.5in
+\textheight=9in
 %\parskip=.3cm
 \oddsidemargin=.1in
 \evensidemargin=.1in
-\headheight=-.5in
-\footskip=0.6in
-\renewcommand{\baselinestretch}{1.3}
+%\headheight=-.5in
+%\footskip=0.6in
+\renewcommand{\baselinestretch}{1.2}
 
 
 \SweaveOpts{keep.source=TRUE,eps=FALSE,include=TRUE,width=4,height=4}

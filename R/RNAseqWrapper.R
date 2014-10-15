@@ -9,7 +9,7 @@ DSS.DE <- function(counts, design) {
     if(length(design) != ncol(counts))
         stop("length of design doesn't match the number of columns of count matrix.")
 
-    seqData = newSeqCountSet(counts, designs)
+    seqData = newSeqCountSet(counts, design)
     seqData = estNormFactors(seqData)
     seqData = estDispersion(seqData)
     result = waldTest(seqData, 0, 1)

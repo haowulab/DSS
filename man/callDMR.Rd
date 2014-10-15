@@ -13,7 +13,8 @@
   of CpG sites, etc. are applied. 
 }
 \usage{
-callDMR(DMLresult, delta, p.threshold, minlen = 50, minCG = 3, dis.merge = 50, pct.sig = 0.5)
+callDMR(DMLresult, delta=0, p.threshold=0.001,
+        minlen=50, minCG=3, dis.merge=100, pct.sig=0.5)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

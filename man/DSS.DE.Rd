@@ -14,7 +14,7 @@ DSS.DE(counts, design)
 \arguments{
   \item{counts}{A matrix of integers with rows corresponding to
     genes and columns for samples.}
-  \item{designs}{A vector representing the treatment groups. It must be
+  \item{design}{A vector representing the treatment groups. It must be
 	a vector of 0 and 1. The length of the vector must match the number
 	of columns of input count matrix.}
 }
@@ -41,8 +41,8 @@ DSS.DE(counts, design)
 
 \examples{
 counts = matrix(rpois(600, 10), ncol=6)
-designs = c(0,0,0,1,1,1)
-result = DSS.DE(counts, designs)
+design = c(0,0,0,1,1,1)
+result = DSS.DE(counts, design)
 head(result)
 }
 
