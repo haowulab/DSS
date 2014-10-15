@@ -1,5 +1,5 @@
 %\VignetteIndexEntry{Differential expression for RNA-seq data with dispersion shrinkage}
-%\VignettePackage{DSS}                                                                        
+%\VignettePackage{DSS}
 
 \documentclass{article}
 
@@ -7,9 +7,9 @@
 \usepackage{Sweave}
 \usepackage[a4paper]{geometry}
 \usepackage{hyperref,graphicx}
-\textwidth=6.5in
-\textheight=9in
-%\parskip=.3cm                                                                                     
+\textwidth=6in
+\textheight=8.5in
+%\parskip=.3cm
 \oddsidemargin=.1in
 \evensidemargin=.1in
 \headheight=-.5in
@@ -18,10 +18,10 @@
 
 
 \SweaveOpts{keep.source=TRUE,eps=FALSE,include=TRUE,width=4,height=4}
-%\newcommand{\Robject}[1]{\texttt{#1}}                                                             
-%\newcommand{\Rpackage}[1]{\textit{#1}}                                                            
-%\newcommand{\Rclass}[1]{\textit{#1}}                                                              
-%\newcommand{\Rfunction}[1]{{\small\texttt{#1}}}                                                   
+%\newcommand{\Robject}[1]{\texttt{#1}}
+%\newcommand{\Rpackage}[1]{\textit{#1}}
+%\newcommand{\Rclass}[1]{\textit{#1}}
+%\newcommand{\Rfunction}[1]{{\small\texttt{#1}}}
 
 \author{Hao Wu \\[1em]Department of Biostatistics and Bioinformatics\\ Emory University\\
   Atlanta, GA 303022 \\ [1em] \texttt{hao.wu@emory.edu}}
@@ -35,100 +35,103 @@
 
 %% abstract
 \begin{abstract}
-This vignette introduces the use of the Bioconductor package 
-DSS ({\underline D}ispersion {\underline S}hrinkage 
-for {\underline S}equencing data), which is designed for 
-differential analysis based on high-throughput sequencing data. 
-It performs differential expression analyses for RNA-seq, 
-and differential methylation analyses for bisulfite sequencing (BS-seq) data. 
-The core of DSS is a new procedure to estimate and shrink 
+This vignette introduces the use of the Bioconductor package
+DSS ({\underline D}ispersion {\underline S}hrinkage
+for {\underline S}equencing data), which is designed for
+differential analysis based on high-throughput sequencing data.
+It performs differential expression analyses for RNA-seq,
+and differential methylation analyses for bisulfite sequencing (BS-seq) data.
+The core of DSS is a new procedure to estimate and shrink
 gene- or CpG site-specific dispersions, then conduct Wald tests for
-differential expression/methylation. Compared with existing methods, DSS provides excellent 
+differential expression/methylation. Compared with existing methods, DSS provides excellent
 statistical and computational performance.
 \end{abstract}
 
 
 \section{Introduction}
 Recent advances in high-throughput sequencing technology have
-revolutionized genomic research. For example, 
+revolutionized genomic research. For example,
 RNA-seq is a new technology for measuring the abundance of RNA products.
-Compared to gene expression microarrays, 
+Compared to gene expression microarrays,
 it provides a better dynamic range and lower signal-to-noise ratio.
-Bisulfite sequencing (BS-seq) is a new technology for measuring DNA methylation. 
-Compared to capture-based methods such as MeDIP-seq, 
-it provides single-base resolution and eliminates biases associated with CpG density. 
+Bisulfite sequencing (BS-seq) is a new technology for measuring DNA methylation.
+Compared to capture-based methods such as MeDIP-seq,
+it provides single-base resolution and eliminates biases associated with CpG density.
 
 Fundamental questions for RNA-seq or BS-seq data analyses
 are whether gene expression regulation or DNA methylation dynamics
-vary under different biological contexts. 
+vary under different biological contexts.
 Identifying sites or regions exhibiting differential expression (DE) or differential methylation (DM)
 are thus key tasks in functional genomics research.
 
 RNA- or BS-seq experiments typically have a limited number of biological
 replicates due to cost constraints. This can lead to unstable estimation of
-within group variance, and subsequently undesirable results from hypothesis testing. 
+within group variance, and subsequently undesirable results from hypothesis testing.
 Variance shrinkage methods have been widely used in DE analyses based on
-microarray data. The methods are typically based on a Bayesian hierarchical model, 
-with a prior imposed on the gene-specific variances to provide 
-a basis for information sharing across all genes/CpG sites. 
+microarray data. The methods are typically based on a Bayesian hierarchical model,
+with a prior imposed on the gene-specific variances to provide
+a basis for information sharing across all genes/CpG sites.
 In these models, shrinkage is achieved for variance estimation.
-Using shrunk variance in hypothesis tests has been shown to provide better results. 
+Using shrunk variance in hypothesis tests has been shown to provide better results.
 
 A distinct feature of RNA-seq or BS-seq data is that the measurements are
 in the form of counts. These data are often assumed to be from the Poisson (for RNA-seq)
-or Binomial (for BS-seq) distributions. 
-Unlike continuous distributions such as the Gaussian distribution, 
-the variances depend on means in these discrete distributions. 
+or Binomial (for BS-seq) distributions.
+Unlike continuous distributions such as the Gaussian distribution,
+the variances depend on means in these discrete distributions.
 This implies that the sample variances do not account for biological variation between replicates,
-and shrinkage cannot be applied on variances directly. 
+and shrinkage cannot be applied on variances directly.
 
 In contrast, we assume that our count data come from the Gamma-Poisson (RNA-seq) or Beta-Binomial (BS-seq) distribution.
-These distributions can be parameterized by a mean and an over dispersion parameter.  
+These distributions can be parameterized by a mean and an over dispersion parameter.
 The over dispersion parameters, which represent the biological variation for
 replicates within a treatment group, play a central role in the differential analyses.
 
-Here we present a new DE/DM detection algorithm, where shrinkage is performed on the dispersion parameters. 
-We first impose a log-normal prior on the dispersions, 
+Here we present a new DE/DM detection algorithm, where shrinkage is performed on the dispersion parameters.
+We first impose a log-normal prior on the dispersions,
 and then combine data from all genes/CpG sites to shrink dispersions
-through a penalized likelihood  approach. 
-Finally, we construct Wald tests to test each gene/site for differential expression/methylation. 
+through a penalized likelihood  approach.
+Finally, we construct Wald tests to test each gene/site for differential expression/methylation.
 Our results show that the new method provides excellent performance
 compared to existing methods, especially when the overall dispersion level is high
-or the number of replicates is small. 
+or the number of replicates is small.
 
-Currently DSS only supports comparison of expression or methylation from
-two treatment groups. Methods for more advanced study designs
-are under development and will be implemented soon.
+For details of the hierarchical model, the shrinkage method and test procedure,
+please read \cite{DE} for differential expression from RNA-seq,
+and \cite{DML} for differential methylation from BS-seq.
+%Currently DSS only supports comparison of expression or methylation from
+%two treatment groups. Methods for more advanced study designs
+%are under development and will be implemented soon.
 
 
 \section{Using {\tt DSS} for differential expression analysis}
 
 \subsection{Single factor experiment}
-Required inputs for DSS are (1) gene expression values as a matrix of integers, 
+Required inputs for DSS are (1) gene expression values as a matrix of integers,
 rows are for genes and columns are for samples;
 and (2) a vector representing experimental designs. The length of the
 design vector must match the number of columns of input counts.
-Optionally, normalization factors or additional annotation for genes 
-can be supplied. 
+Optionally, normalization factors or additional annotation for genes
+can be supplied.
 
-The basic data container in the package is {\tt SeqCountSet} class, 
-which is directly inherited from {\tt ExpressionSet} class 
+The basic data container in the package is {\tt SeqCountSet} class,
+which is directly inherited from {\tt ExpressionSet} class
 defined in {\tt Biobase}. An object of the class contains all necessary
 information for a DE analysis: gene expression values, experimental designs,
-and additional annotations. 
+and additional annotations.
 
-A typical DE analysis contains the following simple steps. 
+A typical DE analysis contains the following simple steps.
 \begin{enumerate}
 \item Create a {\tt SeqCountSet} object using {\tt newSeqCountSet}.
-\item Estimate normalization factor using {\tt estNormFactors}. 
+\item Estimate normalization factor using {\tt estNormFactors}.
 \item Estimate and shrink gene-wise dispersion using {\tt estDispersion}
-\item Two-group comparison using {\tt waldTest}. 
+\item Two-group comparison using {\tt waldTest}.
 \end{enumerate}
 
-The usage of DSS is demonstrated in the simple simulation below. 
+The usage of DSS is demonstrated in the simple simulation below.
 \begin{enumerate}
 \item First load in the library, and make a {\tt SeqCountSet}
-object from some counts for 2000 genes and 6 samples. 
+object from some counts for 2000 genes and 6 samples.
 <<echo=TRUE, result=TRUE>>=
 library(DSS)
 counts1=matrix(rnbinom(300, mu=10, size=10), ncol=3)
@@ -140,15 +143,15 @@ designs=c(0,0,0,1,1,1)
 seqData=newSeqCountSet(X, designs)
 seqData
 @
-\item Estimate normalization factor. 
+\item Estimate normalization factor.
 <<echo=TRUE, result=TRUE>>=
 seqData=estNormFactors(seqData)
-@ 
+@
 \item Estimate and shrink gene-wise dispersions
 <<>>=
 seqData=estDispersion(seqData)
-@ 
-\item With the normalization factors and dispersions ready, the two-group comparison can be 
+@
+\item With the normalization factors and dispersions ready, the two-group comparison can be
 conducted via a Wald test:
 <<>>=
 result=waldTest(seqData, 0, 1)
@@ -156,16 +159,28 @@ head(result,5)
 @
 \end{enumerate}
 
+A higher level wrapper function {\tt DSS.DE} is provided
+for simple RNA-seq DE analysis in a two-group comparison.
+User only needs to provide a count matrix and a vector of 0's and 1's representing the
+design, and get DE test results in one line. A simple example is listed below:
+<<>>=
+counts = matrix(rpois(600, 10), ncol=6)
+designs = c(0,0,0,1,1,1)
+result = DSS.DE(counts, designs)
+head(result)
+@
+
+
 \subsection{Multifactor experiment}
-{\tt DSS} provides functionalities for dispersion shrinkage for multifactor experimental designs. 
+{\tt DSS} provides functionalities for dispersion shrinkage for multifactor experimental designs.
 Downstream model fitting (through genearlized linear model)
 and hypothesis testing can be performed using other packages such as {\tt edgeR},
-with the dispersions estimated from DSS. 
+with the dispersions estimated from DSS.
 
-Below is an example, based a simple simulation, to illustrate the DE analysis of 
-a crossed design.  
+Below is an example, based a simple simulation, to illustrate the DE analysis of
+a crossed design.
 \begin{enumerate}
-\item First simulate data for a 2x2 crossed experiments. Note the 
+\item First simulate data for a 2x2 crossed experiments. Note the
 counts are randomly generated.
 <<echo=TRUE, result=TRUE>>=
 library(DSS)
@@ -173,48 +188,91 @@ library(edgeR)
 counts=matrix(rpois(800, 10), ncol=8)
 design=data.frame(gender=c(rep("M",4), rep("F",4)), strain=rep(c("WT", "Mutant"),4))
 X=model.matrix(~gender+strain, data=design)
-@ 
+@
 
-\item make SeqCountSet, then estimate size factors and  dispersion 
+\item make SeqCountSet, then estimate size factors and  dispersion
 <<echo=TRUE>>=
 seqData=newSeqCountSet(counts, as.data.frame(X))
 seqData=estNormFactors(seqData)
 seqData=estDispersion(seqData)
-@ 
+@
+
 
 \item Using edgeR's function to do glm model fitting, but plugging in the estimated size factors and  dispersion
-from DSS. 
+from DSS.
 <<>>=
 fit.edgeR <- glmFit(counts, X, lib.size=normalizationFactor(seqData),
              dispersion=dispersion(seqData))
-@ 
+@
 
 \item Using edgeR's function to do hypothesis testing on the second parameter of the model (gender).
 <<echo=TRUE, result=TRUE>>=
-lrt.edgeR <- glmLRT(fit.edgeR, coef=2)
+lrt.edgeR <- glmLRT(glmfit=fit.edgeR, coef=2)
 head(lrt.edgeR$table)
-@ 
+@
 
 \end{enumerate}
 
 
 %%% DML detection
 \section{Using {\tt DSS} for differential methylation analysis}
-For BS-seq experiments, after sequence alignment 
-and proper processing, the BS-seq data can be
-summarized with following information for each C position (mostly CpG
-sites, with the occasional CH): chromosome number, genomic coordinate, total
-number of reads covering the position, and number of reads showing
-methylation at this position. For a sample, this information 
-needs to be saved in a simple text file, with each row representing a CpG site. 
+\subsection{Overview}
+To detect differential methylation, statistical tests are conducted at each CpG site,
+and then the differential methylation loci (DML) or differential methylation regions (DMR)
+are called based on user specified threshold.
+A rigorous statistical tests should account for
+biological variations among replicates and the coverage depth.
+Most existing methods for DM analysis are based on {\it ad hoc} methods.
+For example, using Fisher's exact ignores the biological variations,
+using t-test on estimated methylation levels ignores the coverage depth.
+Sometimes arbitrary filtering are recommended: loci with  coverages
+lower than an arbitrary threshold are filtered out.
 
-DML detection using {\tt DSS} starts from several such text files. 
-A typical DML detection contains two simple steps.
-Below we will use files distributed with the package 
-to illustrate the usage of the package. 
+The DM detection procedure implemented in DSS is based on
+a rigorous Wald test for beta-binomial distributions.
+The test statistics depend on the biological variations (captured by dispersion parameter)
+as well as the coverage depth. An important part of the algorithm
+is the estimation of dispersion parameter, which is achieved through a
+shrinkage estimator based on a Bayesian hierarchical model \cite{DML}.
+
+A great advantage of DSS is that the test can be performed even when
+there is no biological replicates. That's because by smoothing procedure,
+the neighboring CpG sites can be viewed as ``pseudo-replicates", and the dispersion
+can still be estimated with reasonable precision.
+
+This package depends on {\tt bsseq} Bioconductor package, which has neat definition of
+data structures and many useful utility functions. In order to use the DM detection functionalities,
+{\tt bsseq} needs to be pre-installed.
+
+\subsection{Input data}
+For one BS-seq experiments, after sequence alignment
+and some processing, the BS-seq data are usually
+summarized into following information for each CG position:
+chromosome number, genomic coordinate, total number of reads,
+and number of reads showing methylation. For a sample, this information
+are saved in a simple text file, with each row representing a CpG site.
+Below shows an example of a small part of such a file:
+\begin{verbatim}
+chr     pos     N       X
+chr18   3014904 26      2
+chr18   3031032 33      12
+chr18   3031044 33      13
+chr18   3031065 48      24
+chr18   3031069 17      4
+chr18   3031082 93      37
+chr18   3031089 76      25
+chr18   3031092 76      28
+\end{verbatim}
+
+DML/DMR detection using {\tt DSS} starts from several such text files.
+A typical DML detection contains two simple steps. First one conduct
+DM test at each CpG site, then DML/DMR are called based on the test result
+and user specified threshold. Below we will use example data distributed
+with {\tt DSS} to illustrate these steps.
 
 \begin{enumerate}
-\item Load in library. Read in text files and create {\tt BSseq} objects for two conditions.
+\item Load in library. Read in text files and create an object of {\tt BSseq} class, which is
+defined in {\tt bsseq} Bioconductor package.
 This step requires {\tt bsseq} Bioconductor package. {\tt BSseq} class is defined in that package.
 
 <<>>=
@@ -225,42 +283,126 @@ dat1.1 <- read.table(file.path(path, "cond1_1.txt"), header=TRUE)
 dat1.2 <- read.table(file.path(path, "cond1_2.txt"), header=TRUE)
 dat2.1 <- read.table(file.path(path, "cond2_1.txt"), header=TRUE)
 dat2.2 <- read.table(file.path(path, "cond2_2.txt"), header=TRUE)
-BS1 <- makeBSseqData( list(dat1.1, dat1.2), paste("cond1",1:2,sep=".") )
-BS2 <- makeBSseqData( list(dat2.1, dat2.2), paste("cond2",1:2,sep=".") )
-BS1
-@ 
+BSobj <- makeBSseqData( list(dat1.1, dat1.2, dat2.1, dat2.2),
+     c("C1","C2", "N1", "N2") )[1:10000,]
+BSobj
+@
 
-\item Detect DML by calling {\tt callDML} function.
-<<>>=
-dmls <- callDML(BS1, BS2)
-head(dmls)
-@ 
+\item Perform statistical test for DML by calling {\tt DMLtest} function.
+This function basically performs following steps: (1) estimate mean methylation levels
+for all CpG site; (2) estimate dispersions at each CpG sites; (3) conduct Wald test.
+For the first step, there's an option for smoothing or not.  Because the methylation levels
+show strong spatial correlations, smoothing can help obtain better estimates
+of mean methylation when the CpG sites are dense in the data
+(such as from the whole-genome BS-seq). However for data with sparse CpG,
+such as from RRBS or hydroxyl-methylation, smoothing is not recommended.
 
-\item Based on the DML results, detect DMR by calling {\tt callDMR} function. 
+To perform DML test without smoothing, do:
 <<>>=
-dmrs <- callDMR(dmls, p.threshold=0.001)
+dmlTest <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"))
+head(dmlTest)
+@
+
+To perform statistical test for DML with smoothing, do:
+<<>>=
+dmlTest.sm <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"), smoothing=TRUE)
+@
+
+There are two options for smoothing: a simple moving average, or the BSmooth method
+implemented in {\tt bsseq} package. The BSmooth method produces much smoother curve,
+which is good for visualization purpose. However, it is very computationally intensive,
+and the results are not very different from moving average in terms of DMR calling.
+So we recommend using moving average.
+Smoothing span is an important parameter in smoothing procedure and have  non-trivial
+impact on DMR calling. We use 500 bp as default, and think that it performs well in real data tests.
+
+
+\item With the test results, one can call DML by using {\tt callDML} function.
+The results DMLs are sorted by the significance.
+<<>>=
+  dmls <- callDML(dmlTest, p.threshold=0.001)
+  head(dmls)
+@
+
+By default, the test is based on the null hypothesis that the difference in methylation levels is 0.
+Alternatively, users can specify a threshold for difference. For example, to
+detect loci with difference greater than 0.1, do:
+<<>>=
+  dmls2 <- callDML(dmlTest, delta=0.1, p.threshold=0.001)
+  head(dmls2)
+@
+When delta is specified, the function will compute the posterior probability that the
+difference of the means is greater than delta. So technically speaking,
+the threshold for p-value here actually refers to the threshold for 1-posterior probability,
+or the local FDR. Here we use the same parameter name for the sake of
+the consistence of function syntax.
+
+\item DMR detection is also Based on the DML test results, by calling {\tt callDMR} function.
+Regions with many statistically significant CpG sites are identified as DMRs.
+Some restrictions are provided by users, including the minimum
+length, minimum number of CpG sites, percentage of CpG site being significant
+in the region, etc. There are some {\it post hoc} procedures to merge nearby DMRs into longer ones.
+<<>>=
+dmrs <- callDMR(dmlTest, p.threshold=0.01)
 head(dmrs)
-@ 
+@
+Here the DMRs are sorted by ``areaStat", which is defined in {\tt bsseq}
+as the sum of the test statistics of all CpG sites within the DMR.
 
+Similarly, users can specify a threshold for difference. For example, to
+detect regions with difference greater than 0.1, do:
+<<>>=
+  dmrs2 <- callDMR(dmlTest, delta=0.1, p.threshold=0.05)
+  head(dmrs2)
+@
+
+Note that the distribution of test statistics (and p-values) depends on
+the differences in methylation levels and biological variations,
+as well as technical factors such as coverage depth. It is very difficulty
+to select a natural and rigorous threshold for defining DMRs. We recommend
+users try different thresholds in order to obtain satisfactory results.
+
+\item The DMRs can be visualized using {\tt showOneDMR} function,
+This function provides more information than the {\tt plotRegion} function in {\tt bsseq}.
+It plots the methylation percentages as well as the coverage depths
+at each CpG sites, instead of just the smoothed curve.
+So the coverage depth information will be available in the figure.
+
+To use the function, do
+<<eval=FALSE>>=
+  showOneDMR(dmrs[1,], BSobj)
+@
+
+The result figure looks like the following. Note that the figure below is not generated from the above example.
+The example data are from RRBS experiment so the DMRs are much shorter.
+
+\begin{figure}[h!]
+\centerline{\includegraphics[width=5.5in]{aDMR.pdf}}
+\end{figure}
 
 \end{enumerate}
 
-For differentially methylated loci (DML) detection, 
-a hypothesis test is conducted at each CpG site,
-and the tests are performed independently. 
-The differentially methylated region (DMR) detection
-is based on the DML test results. Regions will CpG sites being
-statistically significant are detected as DMRs. Nearby DMRs are
-merged into longer ones. Some restrictions including the minimum
-length, minimum number of CpG sites, etc. are applied. Note that
-this function doesn't consider the spatial correlation among
-nearby CpG sites, which is an important aspect in the whole genome 
-BS-seq data. This will be in the future development plan.
+\newpage
+\section{Refernece}
+\begin{thebibliography}{99}
 
+\bibitem{DML}
+\textsc{Hao Feng, Karen Conneely and Hao Wu}. (2014).
+\newblock A bayesian hierarchical model to detect differentially methylated
+  loci from single nucleotide resolution sequencing data.
+\newblock {\em Nucleic acids research\/}~\textbf{42}(8), e69--e69.
+
+\bibitem{DE}
+\textsc{Hao Wu, Chi Wang and Zhijing Wu}. (2013).
+\newblock A new shrinkage estimator for dispersion improves differential
+  expression detection in rna-seq data.
+\newblock {\em Biostatistics\/}~\textbf{14}(2), 232--243.
+
+\end{thebibliography}
 
 \section{Session Info}
 <<echo=TRUE, result=TRUE>>=
 sessionInfo()
-@ 
+@
 \end{document}
 
