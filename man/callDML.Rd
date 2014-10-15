@@ -1,49 +1,36 @@
 \name{callDML}
 \alias{callDML}
+
 \title{
   Function to detect differntially methylated loci (DML) for two group
   comparisons of bisulfite sequencing (BS-seq) data.
 }
 \description{
-  The replicated BS-seq data are modeled as Beta-Binomial
-  distribution. Similar to that in Gamma-Poisson distributions, the
-  biological variations are captured by the dispersion parameter. This
-  function takes BS-seq data from two conditions, and estimate the
-  dispersion parameters through a Bayesian hierarchical model. Then a
-  Wald test is constructed to test the differntial methylation.
+  This function takes the results from DML testing procedure ('DMLtest'
+  function) and calls DMLs. Regions will CpG sites being statistically
+  significant are deemed as DMLs. 
 }
 \usage{
-callDML(BS1, BS2, equal.disp = FALSE, threshold = 0)
+callDML(DMLresult, delta, p.threshold)
 }
 
 \arguments{
-  \item{BS1}{An object of BSseq class for the BS-seq data from the first
-  condition.} 
-\item{BS2}{Anobject of BSseqclass for the BS-seq data from the second
-  condition.}
-  \item{equal.disp}{A flag to indicate whether the dispersion in two
-  groups are deemed equal. Default is FALSE, and the dispersion
-  shrinkages are performed on two conditions independently.}
-  \item{threshold}{A threshold for defining DML. See details for more description.}
+  \item{DMLresult}{
+    A data frame representing the results for DML detection. This should
+    be the result returned from 'DMLtest' function.}
+  \item{delta}{A threshold for defining DML. In DML testing procedure, 
+    hypothesis test that the two groups means are equalis is conducted at each CpG
+    site. Here if 'delta' is specified, the function will compute
+    the posterior probability that the difference of the means are
+    greater than delta,and then call DML based on that.}
+  \item{p.threshold}{
+    A threshold of p-values for defining significance. Loci with p-values less
+    than this threshold will be deemed DMLs.
+  }
 }
 
-\details{
-  By default, a hypothesis testing that the two groups means are equal
-  is conducted at each CpG site. The spatial correlations among the CpG
-  sites are ignored in this function, and the tests are conducted
-  independently at each CpG site. If 'threshold' is specified, the
-  function will also report the posterior probability that the
-  difference of the means are greater than the threshold.
-
-  Due to the differences in coverages, some CpG sites are not covered
-  at all replicates. For a CpG sites, if it's only covered by one
-  replicate, the test cannot be performed because the within group
-  variances cannot be estimated. For those loci the results will be NA.
-}
-
-\value{A data frame with each row corresponding to a CpG site. Rows are
-  sorted by chromosome number and genomic coordinates. The columns
-  include:
+\value{A data frame for DMLs. Each row is for a DML. DMLs are sorted by
+  statistical significance. The columns are
   \item{chr}{Chromosome number.}
   \item{pos}{Genomic coordinates.}
   \item{mu1, mu2}{Mean methylations of two groups.}
@@ -52,13 +39,24 @@ callDML(BS1, BS2, equal.disp = FALSE, threshold = 0)
   \item{stat}{Wald statistics.}
   \item{pval}{P-values. This is obtained from normal distribution.}
   \item{fdr}{False discovery rate.}
+  \item{chr}{Chromosome number.}
+  \item{pos}{Genomic coordinates.}
+  \item{meanMethy1, meanMethy2}{Average methylation levels in two
+    conditions.}
+  \item{diff.Methy}{The difference in the methylation levels between two
+    conditions.}
+  
+  If delta>0, there is an extra column postprob.overThreshold
+  reprsenting the posterior probability of the difference in methylation
+  greater than delta.
 }
 
 \author{
-  Hao Wu <hao.wu@emory.edu>}
+  Hao Wu <hao.wu@emory.edu>
+}
 
 \seealso{
-makeBSseqData
+DMLtest, callDMR
 }
 
 \examples{
@@ -73,11 +71,30 @@ dat2.1 <- read.table(file.path(path, "cond2_1.txt"), header=TRUE)
 dat2.2 <- read.table(file.path(path, "cond2_2.txt"), header=TRUE)
 
 ## make BSseq objects
-BS1 <- makeBSseqData( list(dat1.1, dat1.2), paste("cond1",1:2,sep=".") )
-BS2 <- makeBSseqData( list(dat2.1, dat2.2), paste("cond2",1:2,sep=".") )
+BSobj <- makeBSseqData( list(dat1.1, dat1.2, dat2.1, dat2.2),
+  c("C1","C2", "N1", "N2") )
 
-## call DML 
-result <- callDML(BS1, BS2)
-head(result)
+##  DML test
+dmlTest <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1","N2"))
+
+## call DML
+dmls <- callDML(dmlTest)
+head(dmls)
+
+## call DML with a threshold
+dmls2 <- callDML(dmlTest, delta=0.2)
+head(dmls2)
+
+## For whole-genome BS-seq data, perform DML test with smoothing
+require(bsseqData)
+data(BS.cancer.ex)
+## takea smallportionof data and test
+BSobj <- BS.cancer.ex[10000:15000,]
+dmlTest <- DMLtest(BSobj, group1=c("C1", "C2", "C3"), group2=c("N1","N2","N3"),
+   smoothing=TRUE, smoothing.span=500)
+dmls <- callDML(dmlTest)
+head(dmls)
+
+
 }
 }

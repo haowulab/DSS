@@ -6,26 +6,30 @@
   comparisons of bisulfite sequencing (BS-seq) data.
 }
 \description{
-  This function takes the results from DML detection procedure ('callDML'
+  This function takes the results from DML testing procedure ('callDML'
   function) and calls DMRs. Regions will CpG sites being statistically
   significant are detected as DMRs. Nearby DMRs are merged into longer
   ones. Some restrictions including the minimum length, minimum number
-  of CpG sites, etc. are applied. Note that this function doesn't
-  consider the spatial correlation among nearby CpG sites, which will be
-  in the future development plan. 
+  of CpG sites, etc. are applied. 
 }
 \usage{
-callDMR(DMLresult, p.threshold, minlen = 50, minCG = 3, dis.merge = 50, pct.sig = 0.5)
+callDMR(DMLresult, delta, p.threshold, minlen = 50, minCG = 3, dis.merge = 50, pct.sig = 0.5)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{DMLresult}{
     A data frame representing the results for DML detection. This should
-    be the result returned from 'callDML' function.
+    be the result returned from 'DMLtest' function.
   }
+  \item{delta}{A threshold for defining DML. In DML testing procedure, a hypothesis
+    test that the two groups means are equal is conducted at each CpG
+    site. Here if 'delta' is specified, the function will compute the
+    posterior probability that the difference of the means are greater
+    than delta, and then construct DMR based on that.}
   \item{p.threshold}{
     A threshold of p-values for calling DMR. Loci with p-values less
-    than this threshold will be picked and joint to form the DMRs.
+    than this threshold will be picked and joint to form the DMRs. See
+    'details' for more information.
   }
   \item{minlen}{
     Minimum length (in basepairs) required for DMR. Default is 50 bps. 
@@ -46,9 +50,9 @@ callDMR(DMLresult, p.threshold, minlen = 50, minCG = 3, dis.merge = 50, pct.sig 
   }
 }
 
-\value{A data frame for DMRs. Each row is for a DMR. 
-  Rows are sorted by chromosome number and genomic coordinates. The columns
-  include:
+\value{A data frame for DMRs. Each row is for a DMR. Rows are sorted by
+  "areaStat", which is the sum of test statistics of all CpG sites in
+  the region. The columns are:
   \item{chr}{Chromosome number.}
   \item{start, end}{Genomic coordinates.}
   \item{length}{Length of the DMR, in bps.}
@@ -56,7 +60,20 @@ callDMR(DMLresult, p.threshold, minlen = 50, minCG = 3, dis.merge = 50, pct.sig 
   \item{meanMethy1, meanMethy2}{Average methylation levels in two
     conditions.}
   \item{diff.Methy}{The difference in the methylation levels between two
-  conditions.} 
+    conditions.}
+  \item{areaStat}{The sum of the test statistics of all CpG sites within
+    the DMR.}
+}
+
+\details{
+  When specifying a 'delta' value, the posterior probability (pp) of
+  each CpG site being DML is computed. Then the p.threshold is applied on
+  1-pp, e.g., sites with 1-pp<p.threshold is deemed significant. In this
+  case, the criteria for DMR calling is more stringent and users might
+  consider to use a more liberal p.threshold in order to get more
+  regions. This function is rather fast since the computationally
+  intesnsive part is in 'DMLtest'. Users can try different delta and
+  p.threshold to obtain satisfactory results. 
 }
 
 \author{
@@ -64,25 +81,30 @@ callDMR(DMLresult, p.threshold, minlen = 50, minCG = 3, dis.merge = 50, pct.sig 
 }
 
 \seealso{
-callDML
+DMLtest, callDML
 }
+
 \examples{
 \dontrun{
 require(bsseq)
+require(bsseqData)
+data(BS.cancer.ex)
 
-## first read in methylation data.
-path <- file.path(system.file(package="DSS"), "extdata")
-dat1.1 <- read.table(file.path(path, "cond1_1.txt"), header=TRUE)
-dat1.2 <- read.table(file.path(path, "cond1_2.txt"), header=TRUE)
-dat2.1 <- read.table(file.path(path, "cond2_1.txt"), header=TRUE)
-dat2.2 <- read.table(file.path(path, "cond2_2.txt"), header=TRUE)
+## takea smallportionof data and test
+BSobj <- BS.cancer.ex[140000:150000,]
+dmlTest <- DMLtest(BSobj, group1=c("C1", "C2", "C3"), group2=c("N1","N2","N3"),
+   smoothing=TRUE, smoothing.span=500)
 
-## make BSseq objects
-BS1 <- makeBSseqData( list(dat1.1, dat1.2), paste("cond1",1:2,sep=".") )
-BS2 <- makeBSseqData( list(dat2.1, dat2.2), paste("cond2",1:2,sep=".") )
+## call DMR based on test results
+dmrs <- callDMR(dmlTest)
+head(dmrs)
 
-## call DML
-dmls <- callDML(BS1, BS2)
-dmrs <- callDMR(dmls, p.threshold=0.001)
+## or one can specify a threshold for difference in methylation level
+dmrs2 <- callDMR(dmlTest, delta=0.2)
+head(dmrs2)
+
+## visualize one DMR
+showOneDMR(dmrs[1,], BSobj)
+
 }
 }
