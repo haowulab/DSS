@@ -6,11 +6,11 @@ estDispersion.trend <- function(seqData) {
 
   ## make design matrix
   X=makeDesign(design, k)
-  
+
   ## compute the expected Y. Should this be under null???
   Y=exprs(seqData)+0.5
   muY = calc.expY(Y, X)
-  
+
   ## estimate gene specific phi
   df=ncol(Y)-ncol(X)
   phi.g = est.dispersion(Y, k, design)
@@ -29,7 +29,7 @@ estDispersion.trend <- function(seqData) {
   seqData
 }
 
-  
+
 ### function to shrink dispersion
 ## Y is normalized by size factors and designs.
 ## lOD.pred is predicted dispersion in log scale.
@@ -37,12 +37,11 @@ shrink.dispersion.trend <- function(phi.g, lOD.pred, Y, muY, k, design) {
   nsamples=ncol(Y)
   ngenes=nrow(Y)
   phi.hat=rep(0,ngenes)
-  
+
   ## estimate hyper parameters - this is tricky!!
   ## lOD.pred is the mean
   ## need to estimate tau^2
   lphi.g0=log(phi.g)
-  k=colSums(Y);k=k/min(k)
   lexpr1=rowMeans(log(sweep(Y,2,k,FUN="/")))
   lexpr.cut=2
   ix=lexpr1>lexpr.cut
@@ -53,7 +52,7 @@ shrink.dispersion.trend <- function(phi.g, lOD.pred, Y, muY, k, design) {
   sigma=sqrt(max(sigma2.mar-sigma2.base, 1e-2))
 
   ## The way to estimate mu and sigma needs some thinking.
-  ## However it doesn't seem to make much differences. 
+  ## However it doesn't seem to make much differences.
   ## NR procedure to do shrinkage
   max.value = max(lphi.g0,10, na.rm=TRUE)
   ## objective function (penalized likelihood)
@@ -70,7 +69,7 @@ shrink.dispersion.trend <- function(phi.g, lOD.pred, Y, muY, k, design) {
     }
     return(optimize(obj, interval=c(0.01, max.value))$minimum)
   }
-  
+
   tmp=cbind(Y, muY, lOD.pred)
   phi.hat=apply(tmp,1,get.phi)
   phi.hat
@@ -127,5 +126,5 @@ est.trend <- function(X,xmin=1){
   log(m0.adj)
 }
 
-  
+
 

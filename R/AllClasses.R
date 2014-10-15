@@ -13,8 +13,9 @@ newSeqCountSet <- function(counts, designs, normalizationFactor=NULL,featureData
     featureData <- annotatedDataFrameFrom( counts, byrow=TRUE )
 
   ## check input normalizationFactor
-  if(is.null(normalizationFactor))
-    normalizationFactor <- rep(1, ncol(counts))
+  if(is.null(normalizationFactor)) { ## not provided, calculate it
+      normalizationFactor <- estNormFactors.lr(counts)
+  }
   else { # with normalizationFactor provided
     if(is(normalizationFactor, "numeric")) { ## input is vector
       if(length(normalizationFactor) != ncol(counts))
@@ -29,7 +30,7 @@ newSeqCountSet <- function(counts, designs, normalizationFactor=NULL,featureData
       stop("Wrong input normalizationFactor, must be a numeric vector or matrix.")
     }
   }
-  
+
   ## work on input design matrix. Carefully about the input design.
   if(is(designs, "vector") ) { # single factor design
     designs <- as.data.frame(designs )
@@ -52,9 +53,9 @@ newSeqCountSet <- function(counts, designs, normalizationFactor=NULL,featureData
     designs <- as( designs, "AnnotatedDataFrame" )
   }
 
-  
+
   res <- new("SeqCountSet",
-             exprs = counts, 
+             exprs = counts,
              phenoData = designs,
              featureData = featureData,
              normalizationFactor=normalizationFactor,
@@ -80,7 +81,7 @@ setMethod("normalizationFactor", signature(object="SeqCountSet"),
             res
           })
 
-setReplaceMethod("normalizationFactor", signature(object="SeqCountSet", value="numeric"), 
+setReplaceMethod("normalizationFactor", signature(object="SeqCountSet", value="numeric"),
                  function(object, value ) {
                    if(length(value) != ncol(exprs(object)))
                      stop("wrong length for normalization factor vector!")
@@ -88,7 +89,7 @@ setReplaceMethod("normalizationFactor", signature(object="SeqCountSet", value="n
                    object
                  })
 
-setReplaceMethod("normalizationFactor", signature(object="SeqCountSet", value="matrix"), 
+setReplaceMethod("normalizationFactor", signature(object="SeqCountSet", value="matrix"),
                  function(object, value ) {
                    if(any(dim(value) != dim(exprs(object))))
                      stop("wrong dimension for normalization factor matrix!")
@@ -105,7 +106,7 @@ setMethod("dispersion", signature(object="SeqCountSet"),
             object@dispersion
           })
 
-setReplaceMethod("dispersion", signature(object="SeqCountSet", value="numeric"), 
+setReplaceMethod("dispersion", signature(object="SeqCountSet", value="numeric"),
                  function(object, value ) {
                    if(length(value) != nrow(exprs(object)))
                      stop("wrong length for dispersion vector!")
