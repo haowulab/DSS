@@ -1,11 +1,21 @@
 citEntry(entry="article",
          title = "A new shrinkage estimator for dispersion improves differential expression detection in RNA-seq data",
          author = personList( as.person("Hao Wu"), as.person("Chi Wang"), as.person("Zhijin Wu")), 
-         year = 2012,
+         year = 2013,
          journal = "Biostatistics",
          doi = "10.1093/biostatistics/kxs033",
          textVersion =
-         paste("Hao Wu, Chi Wang, Zhijin Wu (2012):",
+         paste("Hao Wu, Chi Wang, Zhijin Wu (2013):",
                "A new shrinkage estimator for dispersion improves differential expression detection in RNA-seq data. ", 
-                "Biostatistics:10.1093/biostatistics/kxs033" ) )
+                "Biostatistics, 14(2):232-43. doi:10.1093/biostatistics/kxs033" ) )
 
+citEntry(entry="article",
+         title = "A bayesian hierarchical model to detect differentially methylated loci from single nucleotide resolution sequencing data.",
+         author = personList( as.person("Hao Feng"), as.person("Karen Conneely"), as.person("Hao Wu")),
+         year = 2014,
+         journal = "Nucleic acids research",
+		 doi = "10.1093/nar/gku154",
+         textVersion =
+         paste("Hao Feng, Karen Conneely, Hao Wu (2014):",
+               "A bayesian hierarchical model to detect differentially methylated loci from single nucleotide resolution sequencing data.", 
+                "Nucleic acids research, 42(8):e69. doi:10.1093/nar/gku154") )

@@ -27,3 +27,6 @@ CHANGES IN VERSION 1.7.0
     Currently edgeR functions are used for glm fitting and hypothesis testing.
     DSS only provide functions for dispersion estimation.
 
+CHANGES IN VERSION 2.5.0
+----------------------
+  o Implemented methods for detecting differentially methylated regions (DMR).
