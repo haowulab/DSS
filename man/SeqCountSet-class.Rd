@@ -11,10 +11,13 @@
   sequencing experiment}
 
 \description{
-  This class is the main container for storing data from sequencing
-  technology. It is directly inherited fro 'ExpressionSet' class, with two
+  This class is the main container for storing *RNA-seq* data.
+  It is directly inherited fro 'ExpressionSet' class, with two
   more fields 'normalizationFactor' for normalization factors and
-  'dispersion' for gene-wise dispersions. 
+  'dispersion' for gene-wise dispersions.
+
+  The class for BS-seq data is *BSseq*, which is imported from bsseq
+  package. 
 }
 
 \section{Slots}{
@@ -82,6 +85,7 @@
 }
 
 \examples{
+## simulate data from RNA-seq
 counts=matrix(rpois(600, 10), ncol=6)
 designs=c(0,0,0,1,1,1)
 seqData=newSeqCountSet(counts, designs)
