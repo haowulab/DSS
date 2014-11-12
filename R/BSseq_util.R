@@ -3,7 +3,7 @@
 #######################################################
 
 ###### make an object of BSseq given count data from several replicates
-## The input is a list of  data frames with columns: chr, pos, Ntotal, Nmethy.
+## The input is a list of  data frames with columns: chr, pos, N, X.
 makeBSseqData <- function(dat, sampleNames) {
   n0 <- length(dat)
 
@@ -11,16 +11,23 @@ makeBSseqData <- function(dat, sampleNames) {
     sampleNames <- paste("sample", 1:n0, sep="")
 
   alldat <- dat[[1]]
-  colnames(alldat)[3:4] <- c("N1", "X1")
-  if(any(alldat[,3] < alldat[,4], na.rm=TRUE))
+  if(any(alldat[,"N"] < alldat[,"X"], na.rm=TRUE))
       stop("Some methylation counts are greater than coverage.\n")
+  ix.X <- which(colnames(alldat) == "X")
+  ix.N <- which(colnames(alldat) == "N")
+  colnames(alldat)[ix.X] <- "X1"
+  colnames(alldat)[ix.N] <- "N1"
+
 
   if(n0 > 1) { ## multiple replicates, merge data
     for(i in 2:n0) {
       thisdat <- dat[[i]]
-      if(any(alldat[,3] < alldat[,4], na.rm=TRUE))
+      if(any(thisdat[,"N"] < thisdat[,"X"], na.rm=TRUE))
           stop("Some methylation counts are greater than coverage.\n")
-      colnames(thisdat)[3:4] <- paste(c("N", "X"),i, sep="")
+
+      ix.X <- which(colnames(thisdat) == "X")
+      ix.N <- which(colnames(thisdat) == "N")
+      colnames(thisdat)[c(ix.X,ix.N)] <- paste(c("X", "N"),i, sep="")
       alldat <- merge(alldat, thisdat, all=TRUE)
     }
   }
