@@ -2,21 +2,12 @@
 %\VignettePackage{DSS}
 
 \documentclass{article}
+<<style, eval=TRUE, echo=FALSE, results=tex>>=
+    BiocStyle::latex(use.unsrturl=FALSE)
+@
 
-\usepackage{float}
+\renewcommand{\baselinestretch}{1.3}
 \usepackage{Sweave}
-\usepackage[a4paper]{geometry}
-\usepackage{hyperref,graphicx}
-\textwidth=6in
-\textheight=9in
-%\parskip=.3cm
-\oddsidemargin=.1in
-\evensidemargin=.1in
-%\headheight=-.5in
-%\footskip=0.6in
-\renewcommand{\baselinestretch}{1.2}
-
-
 \SweaveOpts{keep.source=TRUE,eps=FALSE,include=TRUE,width=4,height=4}
 %\newcommand{\Robject}[1]{\texttt{#1}}
 %\newcommand{\Rpackage}[1]{\textit{#1}}
@@ -383,7 +374,11 @@ The example data are from RRBS experiment so the DMRs are much shorter.
 \end{enumerate}
 
 \newpage
-\section{Refernece}
+\section{Session Info}
+<<echo=TRUE, result=TRUE>>=
+sessionInfo()
+@
+
 \begin{thebibliography}{99}
 
 \bibitem{DML}
@@ -400,9 +395,5 @@ The example data are from RRBS experiment so the DMRs are much shorter.
 
 \end{thebibliography}
 
-\section{Session Info}
-<<echo=TRUE, result=TRUE>>=
-sessionInfo()
-@
 \end{document}
 
