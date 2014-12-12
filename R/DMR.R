@@ -2,7 +2,7 @@
 ## function to call DMRs from the DML test results
 ########################################################
 
-callDMR <- function(DMLresult, delta=0, p.threshold=0.001,
+callDMR <- function(DMLresult, delta=0.1, p.threshold=0.001,
                     minlen=50, minCG=3, dis.merge=100, pct.sig=0.5) {
   ## remove the NA entries
   ix.keep = !is.na(DMLresult$stat)

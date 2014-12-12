@@ -13,7 +13,7 @@
   of CpG sites, etc. are applied. 
 }
 \usage{
-callDMR(DMLresult, delta=0, p.threshold=0.001,
+callDMR(DMLresult, delta=0.1, p.threshold=0.001,
         minlen=50, minCG=3, dis.merge=100, pct.sig=0.5)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -22,7 +22,7 @@ callDMR(DMLresult, delta=0, p.threshold=0.001,
     A data frame representing the results for DML detection. This should
     be the result returned from 'DMLtest' function.
   }
-  \item{delta}{A threshold for defining DML. In DML testing procedure, a hypothesis
+  \item{delta}{A threshold for defining DMR. In DML detection procedure, a hypothesis
     test that the two groups means are equal is conducted at each CpG
     site. Here if 'delta' is specified, the function will compute the
     posterior probability that the difference of the means are greater

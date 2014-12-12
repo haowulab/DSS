@@ -247,7 +247,7 @@ compute.waldStat.Smooth <- function(estprob1, estprob2, n1, n2, phi1, phi2, smoo
 ################
 ## call DML
 ################
-callDML <- function(DMLresult, delta=0, p.threshold=1e-5) {
+callDML <- function(DMLresult, delta=0.1, p.threshold=1e-5) {
 
   ## obtain posterior probability that the differnce of two means are greater than a threshold
   if( delta > 0 ) {
