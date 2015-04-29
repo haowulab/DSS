@@ -26,7 +26,8 @@ makeBSseqData(dat, sampleNames)
     replicates. Each element represents data from one replicate. The data
     frame MUST contain following columns in correct order: (1) Chromosome number; (2)
     Genomic coordinates; (3) Read coverage of the position from BS-seq
-    data; (4) Number of reads showing methylation of the position.}
+    data; (4) Number of reads showing methylation of the position. The
+	colnames MUST BE "chr", "pos", "N", "X".}
   \item{sampleNames}{A vector of characters for the sample names. The
     length of the vector should match the length of the input list.}
 }

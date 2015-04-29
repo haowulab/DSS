@@ -2,7 +2,7 @@ import( Biobase )
 import( bsseq )
 import(methods)
 useDynLib(DSS)
-exportClasses("SeqCountSet") 
+exportClasses("SeqCountSet")
 exportMethods(
               normalizationFactor, "normalizationFactor<-",
               dispersion, "dispersion<-"
@@ -10,14 +10,16 @@ exportMethods(
 
 export(
        newSeqCountSet,
-       estDispersion, 
-       estNormFactors, 
+       estDispersion,
+       estNormFactors,
        waldTest,
        DSS.DE,
        DMLtest,
        callDML,
        callDMR,
        makeBSseqData,
-       showOneDMR
+       showOneDMR,
+       DMLfit.multiFactor,
+       DMLtest.multiFactor
 )
 

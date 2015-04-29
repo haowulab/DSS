@@ -13,7 +13,7 @@
   of CpG sites, etc. are applied. 
 }
 \usage{
-callDMR(DMLresult, delta=0.1, p.threshold=0.001,
+callDMR(DMLresult, delta=0.1, p.threshold=1e-5,
         minlen=50, minCG=3, dis.merge=100, pct.sig=0.5)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -67,14 +67,21 @@ callDMR(DMLresult, delta=0.1, p.threshold=0.001,
 }
 
 \details{
+  The choices of 'delta' and 'p.threshold' are somewhat arbitrary.
+  The default value for p-value threshold for calling DMR is 1e-5. The
+  statistical test on loci level is less powerful when smoothing is NOT
+  applied, so users can consider to use a less stringent criteria, such
+  as 0.001, in order to get satisfactory number of DMRs.
+  This function is reasonably fast since the computationally
+  intesnsive part is in 'DMLtest'. Users can try different 
+  p.threshold values to obtain satisfactory results.
+  
   When specifying a 'delta' value, the posterior probability (pp) of
   each CpG site being DML is computed. Then the p.threshold is applied on
   1-pp, e.g., sites with 1-pp<p.threshold is deemed significant. In this
   case, the criteria for DMR calling is more stringent and users might
   consider to use a more liberal p.threshold in order to get more
-  regions. This function is rather fast since the computationally
-  intesnsive part is in 'DMLtest'. Users can try different delta and
-  p.threshold to obtain satisfactory results. 
+  regions.
 }
 
 \author{
@@ -106,6 +113,5 @@ head(dmrs2)
 
 ## visualize one DMR
 showOneDMR(dmrs[1,], BSobj)
-
 }
 }

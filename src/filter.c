@@ -1,53 +1,5 @@
 /* utility functions for filtering */
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <R.h>
-#include <Rmath.h>
-#include <R_ext/PrtUtil.h>
-#include <Rinternals.h>
-#include <Rdefines.h>
-#include <R_ext/Rdynload.h>
-
-void nitem_bin(SEXP pos_sexp, int ws, int* result_ptr);
-void windowFilter_engine(double *x, int* nitem, int npos, int flag, double* result_ptr);
-SEXP windowFilter(SEXP x, SEXP pos, SEXP ws, SEXP R_flag);
-
-/* find number of items in each bin.
-   result is a two column matrix for number of items
-   before and after the current position. */
-void nitem_bin(SEXP pos_sexp, int ws, int* result_ptr) {
-  int ipos, j, n;
-  SEXP result;
-  int npos = length(pos_sexp);
-  int *pos = INTEGER(pos_sexp);
-
-  for(ipos=0; ipos<npos; ipos++) {
-    /* left side */
-    n = 0;
-    for(j=ipos-1; j>=0; j--) {
-      if(pos[ipos]-pos[j]>ws/2) {
-	n = ipos - j - 1; 
-	break;
-      }
-    }
-    if(j == -1) /* begining */
-      n = ipos; 
-    result_ptr[ipos] = n;
-
-    /* right side */
-    n = 0;
-    for(j=ipos+1; j<npos; j++) {
-      if(pos[j]-pos[ipos]>ws/2) {
-        n = j-ipos-1;
-	break;
-      } 
-    }
-    if(j == npos) /* end */
-      n = npos - ipos - 1;
-    result_ptr[ipos+npos] = n;
-  }
-}
+#include "DSS.h"
 
 
 /* engine function for moving avearge.
