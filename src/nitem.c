@@ -6,7 +6,6 @@
 
 void nitem_bin(SEXP pos_sexp, int ws, int* result_ptr) {
   int ipos, j, n;
-  SEXP result;
   int npos = length(pos_sexp);
   int *pos = INTEGER(pos_sexp);
 
