@@ -9,7 +9,6 @@
 void windowFilter_engine(double *x, int* nitem, int npos, int flag, double* result_ptr) {
   int ipos, j;
   double *sx;
-  SEXP result;
 
   /* first compute cumsums. This will greatly speed up the calculation */
   sx = (double *)R_alloc(npos+1, sizeof(double));
