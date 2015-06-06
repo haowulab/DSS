@@ -1,6 +1,6 @@
 Package: DSS
 Title: Dispersion shrinakge for sequencing data.
-Version: 2.8.0
+Version: 2.7.1
 Date: 2015-4-29
 Author: Hao Wu <hao.wu@emory.edu>
 Depends: Biobase,bsseq,splines,methods
