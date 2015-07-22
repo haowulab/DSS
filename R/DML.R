@@ -104,8 +104,10 @@ DMLtest.noSmooth <- function(BS1, BS2, equal.disp=FALSE) {
     }
 
     ## weight the counts
-    wt1 <- 1 / (1+(n1-1)*phi1); wt1 <- wt1 / mean(wt1)
-    wt2 <- 1 / (1+(n2-1)*phi2); wt1 <- wt2 / mean(wt2)
+    wt1 <- 1 / (1+(n1-1)*phi1);
+    wt1 <- wt1 / mean(wt1)
+    wt2 <- 1 / (1+(n2-1)*phi2);
+    wt2 <- wt2 / mean(wt2)
     x1.wt <- x1*wt1
     n1.wt <- n1*wt1
     x2.wt <- x2*wt2
