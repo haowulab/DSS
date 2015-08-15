@@ -1,9 +1,9 @@
 Package: DSS
 Title: Dispersion shrinakge for sequencing data.
-Version: 2.8.1
-Date: 2015-7-21
+Version: 2.8.2
+Date: 2015-8-16
 Author: Hao Wu <hao.wu@emory.edu>
-Depends: Biobase, bsseq (>= 1.5.4), splines, methods
+Depends: Biobase, bsseq, splines, methods
 Maintainer: Hao Wu <hao.wu@emory.edu>
 Suggests: BiocStyle
 Description: DSS is an R library performing differntial analysis for
@@ -14,5 +14,5 @@ Description: DSS is an R library performing differntial analysis for
         for estimating the dispersion parameter from Gamma-Poisson or
         Beta-Binomial distributions.
 License: GPL
-biocViews: Sequencing, RNASeq, ChIPSeq, DNAMethylation,
-        DifferentialExpression
+biocViews: Sequencing, RNASeq, ChIPSeq, DNAMethylation,GeneExpression,
+        DifferentialExpression,DifferentialMethylation

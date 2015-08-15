@@ -19,3 +19,16 @@ citEntry(entry="article",
          paste("Hao Feng, Karen Conneely, Hao Wu (2014):",
                "A bayesian hierarchical model to detect differentially methylated loci from single nucleotide resolution sequencing data.", 
                 "Nucleic acids research, 42(8):e69. doi:10.1093/nar/gku154") )
+
+citEntry(entry="article",
+         title = "Detection of differentially methylated regions from whole-genome bisulfite sequencing data without replicates.",
+         author = personList( as.person("Hao Wu"), as.person("Tianlei Xu"), as.person("Hao Feng"),as.person("Li Chen"),as.person("Ben Li"),as.person("Bing Yao"),
+                              as.person("Zhaohui Qin"),as.person("Peng Jin"),as.person("Karen Conneely")),
+         year = 2015,
+         journal = "Nucleic acids research",
+                 doi = "doi: 10.1093/nar/gkv715",
+         textVersion =
+         paste("Hao Wu, Tianlei Xu, Hao Feng, Li Chen, Ben Li, Bing Yao, Zhaohui Qin, Peng Jin and Karen N. Conneely (2015):", 
+               "Detection of differentially methylated regions from whole-genome bisulfite sequencing data without replicates.",
+                "Nucleic acids research. doi: 10.1093/nar/gkv715") )
+

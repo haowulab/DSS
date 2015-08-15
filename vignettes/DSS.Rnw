@@ -379,20 +379,20 @@ The example data are from RRBS experiment so the DMRs are much shorter.
 
 \newpage
 \subsection{DML/DMR detection from general experimental design}
-In DSS, BS-seq data from a general experimental design (such as crossed experiment, 
-or experiment with covariates) is modeled through a generalized linear model framework. 
+In DSS, BS-seq data from a general experimental design (such as crossed experiment,
+or experiment with covariates) is modeled through a generalized linear model framework.
 We use arcsine link function instead of the typical logit link for it better deals with data
-at boundaries (methylation levels close to 0 or 1).  Linear model fitting is done 
-through ordinary least square on transformed methylation levels. Standard errors 
-for the estimates are derived with consideration of count data distribution and transformation. 
-A Wald test is applied to perform hypothesis testing. 
+at boundaries (methylation levels close to 0 or 1).  Linear model fitting is done
+through ordinary least square on transformed methylation levels. Standard errors
+for the estimates are derived with consideration of count data distribution and transformation.
+A Wald test is applied to perform hypothesis testing.
 
 \begin{enumerate}
 
-\item Load in data distributed with {\tt DSS}. This is a small portion of a set of 
-RRBS experiments. There are 5000 CpG sites and 16 samples. 
+\item Load in data distributed with {\tt DSS}. This is a small portion of a set of
+RRBS experiments. There are 5000 CpG sites and 16 samples.
 The experiment is a $2\time 2$ design (2 cases and 2 cell types).
-There are 4 replicates in each case:cell combination. 
+There are 4 replicates in each case:cell combination.
 
 <<>>=
 data(RRBS)
@@ -400,26 +400,26 @@ RRBS
 design
 @
 
-\item Fit a linear model using {\tt DMLfit.multiFactor} function, include 
-case, cell, and case:cell interaction. 
+\item Fit a linear model using {\tt DMLfit.multiFactor} function, include
+case, cell, and case:cell interaction.
 <<>>=
 DMLfit = DMLfit.multiFactor(RRBS, design=design, formula=~case+cell+case:cell)
-@ 
+@
 
-\item Use {\tt DMLtest.multiFactor} function to test the cell effect. 
-It is important to note that the {\tt coef} parameter is the index 
-of the coefficient to be tested for being 0. Because the model 
+\item Use {\tt DMLtest.multiFactor} function to test the cell effect.
+It is important to note that the {\tt coef} parameter is the index
+of the coefficient to be tested for being 0. Because the model
 (as specified by {\tt formula} in {\tt DMLfit.multiFactor}) include intercept,
-the cell effect is the 3rd column in the design matrix, so we use 
-{\tt coef=3} here. 
+the cell effect is the 3rd column in the design matrix, so we use
+{\tt coef=3} here.
 
 <<>>=
 DMLtest.cell = DMLtest.multiFactor(DMLfit, coef=3)
 @
 
 Result from this step is a data frame with chromosome number, CpG site position,
-test statistics, p-values (from normal distribution), and FDR. 
-Rows are sorted by chromosome/position of the CpG sites. 
+test statistics, p-values (from normal distribution), and FDR.
+Rows are sorted by chromosome/position of the CpG sites.
 To obtain top ranked CpG sites, one can sort the data frame using following codes:
 
 <<>>=
@@ -427,7 +427,7 @@ ix=sort(DMLtest.cell[,"pvals"], index.return=TRUE)$ix
 head(DMLtest.cell[ix,])
 @
 
-Below is a figure showing the distributions of test statistics and p-values from this example dataset 
+Below is a figure showing the distributions of test statistics and p-values from this example dataset
 
 <<fig=TRUE, height=4, width=8>>=
 par(mfrow=c(1,2))
@@ -438,8 +438,8 @@ hist(DMLtest.cell$pvals, 50, main="P values", xlab="")
 \end{enumerate}
 
 These procedures are computationally very efficient. For a typical RRBS dataset with 4 million CpG sites,
-it takes around 20 minutes. In comparison, other methods such as RADMeth or BiSeq 
-takes at least 10 times longer.  
+it takes around 20 minutes. In comparison, other methods such as RADMeth or BiSeq
+takes at least 10 times longer.
 
 
 \newpage
@@ -455,6 +455,12 @@ sessionInfo()
 \newblock A bayesian hierarchical model to detect differentially methylated
   loci from single nucleotide resolution sequencing data.
 \newblock {\em Nucleic acids research\/}~\textbf{42}(8), e69--e69.
+
+\bibitem{DMR1}
+\textsc{Hao Wu, Tianlei Xu, Hao Feng, Li Chen, Ben Li, Bing Yao, Zhaohui Qin, Peng Jin and Karen N. Conneely}. (2015).
+\newblock Detection of differentially methylated regions from whole-genome bisulfite sequencing data without replicates.
+\newblock {\em Nucleic acids research\/}~doi: 10.1093/nar/gkv715.
+
 
 \bibitem{DE}
 \textsc{Hao Wu, Chi Wang and Zhijing Wu}. (2013).
