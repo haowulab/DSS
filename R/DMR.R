@@ -31,7 +31,7 @@ callDMR <- function(DMLresult, delta=0, p.threshold=1e-5,
     ## bump finding
     dmrs <- findBumps(DMLresult$chr, DMLresult$pos, scores,
                       cutoff=p.threshold, sep=5000, dis.merge=dis.merge,
-                      pct.sig=pct.sig)
+                      pct.sig=pct.sig, minCG=minCG)
 
     ## compute average methylation levels in two groups
     if(is.null(dmrs)) {
@@ -78,8 +78,9 @@ findRegion <- function(chr, pos, sep=1000) {
 
 #######################################################
 ## Bump finding, given score and cutoff.
+## This is slow. Need to rewrite in C.
 #######################################################
-findBumps <- function(chr, pos, x, cutoff, sep=1000, dis.merge=200, pct.sig=0.3) {
+findBumps <- function(chr, pos, x, cutoff, sep=1000, dis.merge=200, pct.sig=0.3, minCG) {
     flag <- as.numeric(x<cutoff)
     if(sum(flag) == 0) ## none
         return(NULL)
@@ -88,7 +89,7 @@ findBumps <- function(chr, pos, x, cutoff, sep=1000, dis.merge=200, pct.sig=0.3)
     ## find regions
     regions <- findRegion(chr, pos, sep)
     ## loop on regions
-    initn <- 500000 ## initialze number of DMRs. Allocate enough rows to start with.
+    initn <- 100000 ## initialze number of DMRs. Allocate enough rows to start with.
     result <- data.frame(chr=rep("chr1",initn), start=rep(0,initn),
                          end=rep(0, initn), length=rep(0, initn),
                          idx.start.global=rep(0, initn),
@@ -97,6 +98,7 @@ findBumps <- function(chr, pos, x, cutoff, sep=1000, dis.merge=200, pct.sig=0.3)
     result.idx <- 0
     for(i in 1:ncol(regions)) {
         idx <- regions[1,i]:regions[2,i]
+        if(length(idx) <= minCG) next
         pos.region <- pos[idx]
         nn <- length(idx)
         flag.region <- flag[idx]
@@ -110,11 +112,11 @@ findBumps <- function(chr, pos, x, cutoff, sep=1000, dis.merge=200, pct.sig=0.3)
         if(flag.region[nn]==1)
             endidx <- c(endidx, nn)
 
-        ## remove if there are less than minCount probes
-        ##     idx.keep <- (endidx-startidx+1)>=minCount
-        ##     startidx <- startidx[idx.keep]
-        ##                 endidx <- endidx[idx.keep]
-        ##     if(length(endidx)==0) next
+        ## skip if there are less than minCount probes
+##         idx.keep <- (endidx-startidx+1)>=minCG
+##         startidx <- startidx[idx.keep]
+##         endidx <- endidx[idx.keep]
+##         if(length(endidx)==0) next
 
         ## merge if they are really close
         nbump <- length(startidx)
