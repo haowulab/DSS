@@ -11,8 +11,7 @@
 }
 
 \usage{
-DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE,
-  smoothing.method = c("ma", "BSmooth"), smoothing.span = 500, ...)
+DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE, smoothing.span = 500) 
 }
 
 \arguments{

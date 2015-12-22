@@ -13,7 +13,7 @@
   of CpG sites, etc. are applied. 
 }
 \usage{
-callDMR(DMLresult, delta=0.1, p.threshold=1e-5,
+callDMR(DMLresult, delta=0, p.threshold=1e-5,
         minlen=50, minCG=3, dis.merge=100, pct.sig=0.5)
 }
 %- maybe also 'usage' for other objects documented here.
