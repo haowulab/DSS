@@ -32,76 +32,119 @@ for {\underline S}equencing data), which is designed for
 differential analysis based on high-throughput sequencing data.
 It performs differential expression analyses for RNA-seq,
 and differential methylation analyses for bisulfite sequencing (BS-seq) data.
-The core of DSS is a new procedure to estimate and shrink
-gene- or CpG site-specific dispersions, then conduct Wald tests for
-differential expression/methylation. Compared with existing methods, DSS provides excellent
-statistical and computational performance.
+The core of DSS is a procedure based on Bayesian hierarchical model
+to estimate and shrink gene- or CpG site-specific dispersions,
+then conduct Wald tests for detecting differential expression/methylation.
+
+%Compared with existing methods, DSS provides excellent
+%statistical and computational performance.
 \end{abstract}
 
 
 \section{Introduction}
-Recent advances in high-throughput sequencing technology have
-revolutionized genomic research. For example,
-RNA-seq is a new technology for measuring the abundance of RNA products.
-Compared to gene expression microarrays,
-it provides a better dynamic range and lower signal-to-noise ratio.
-Bisulfite sequencing (BS-seq) is a new technology for measuring DNA methylation.
-Compared to capture-based methods such as MeDIP-seq,
-it provides single-base resolution and eliminates biases associated with CpG density.
-
-Fundamental questions for RNA-seq or BS-seq data analyses
-are whether gene expression regulation or DNA methylation dynamics
+Recent advances in various high-throughput sequencing technologies have
+revolutionized genomics research. Among them,
+RNA-seq is designed to measure the the abundance of RNA products,
+and Bisulfite sequencing (BS-seq) is for measuring DNA methylation.
+A fundamental question in functional genomics research
+is whether gene expression or DNA methylation
 vary under different biological contexts.
-Identifying sites or regions exhibiting differential expression (DE) or differential methylation (DM)
-are thus key tasks in functional genomics research.
+Thus, identifying differential expression genes (DEGs)
+or differential methylation loci/regions (DML/DMRs)
+are key tasks in RNA-seq or BS-seq data analyses.
 
-RNA- or BS-seq experiments typically have a limited number of biological
-replicates due to cost constraints. This can lead to unstable estimation of
-within group variance, and subsequently undesirable results from hypothesis testing.
-Variance shrinkage methods have been widely used in DE analyses based on
-microarray data. The methods are typically based on a Bayesian hierarchical model,
+The differential expression (DE) or differential methylation (DM) analyses
+are often based on gene- or CpG-specific statistical test.
+A key limitation in RNA- or BS-seq experiments
+is that the number of biological replicates is usually limited due to cost constraints.
+This can lead to unstable estimation of within group variance,
+and subsequently undesirable results from hypothesis testing.
+Variance shrinkage methods have been widely applied in DE analyses in
+microarray data to improve the estimation of gene-specific within group variances.
+These methods are typically based on a Bayesian hierarchical model,
 with a prior imposed on the gene-specific variances to provide
-a basis for information sharing across all genes/CpG sites.
-In these models, shrinkage is achieved for variance estimation.
-Using shrunk variance in hypothesis tests has been shown to provide better results.
+a basis for information sharing across all genes.
+%In these models, shrinkage is achieved for variance estimation.
+%Using shrunk variance in hypothesis tests has been shown to provide better results.
 
 A distinct feature of RNA-seq or BS-seq data is that the measurements are
-in the form of counts. These data are often assumed to be from the Poisson (for RNA-seq)
-or Binomial (for BS-seq) distributions.
-Unlike continuous distributions such as the Gaussian distribution,
+in the form of counts and have to be modeld by discrete distributions.
+%. These data are often assumed to be from the Poisson (for RNA-seq)
+%or Binomial (for BS-seq) distributions.
+Unlike continuous distributions (such as Gaussian),
 the variances depend on means in these discrete distributions.
-This implies that the sample variances do not account for biological variation between replicates,
+This implies that the sample variances do not account for biological variation,
 and shrinkage cannot be applied on variances directly.
-
-In contrast, we assume that our count data come from the Gamma-Poisson (RNA-seq) or Beta-Binomial (BS-seq) distribution.
-These distributions can be parameterized by a mean and an over dispersion parameter.
-The over dispersion parameters, which represent the biological variation for
+In DSS, we assume that the count data are
+from the Gamma-Poisson (for RNA-seq) or Beta-Binomial (for BS-seq) distribution.
+We then parameterize the  distributions by a mean and a dispersion parameters.
+The dispersion parameters, which represent the biological variation for
 replicates within a treatment group, play a central role in the differential analyses.
 
-Here we present a new DE/DM detection algorithm, where shrinkage is performed on the dispersion parameters.
-We first impose a log-normal prior on the dispersions,
-and then combine data from all genes/CpG sites to shrink dispersions
-through a penalized likelihood  approach.
-Finally, we construct Wald tests to test each gene/site for differential expression/methylation.
-Our results show that the new method provides excellent performance
+DSS implements a series of DE/DM detection algorithms based on the
+dispersion shrinkage method followed by Wald statistical test
+to test each gene/CpG site for differential expression/methylation.
+It provides functions for RNA-seq DE analysis for both two group comparision and multi-factor design,
+BS-seq DM analysis for two group comparision, multi-factor design, and data without biological replicate.
+Simulation and real data results show that the methods provides excellent performance
 compared to existing methods, especially when the overall dispersion level is high
 or the number of replicates is small.
 
-For details of the hierarchical model, the shrinkage method and test procedure,
+For more details of the data model, the shrinkage method, and test procedures,
 please read \cite{DE} for differential expression from RNA-seq,
-and \cite{DML} for differential methylation from BS-seq.
-%Currently DSS only supports comparison of expression or methylation from
-%two treatment groups. Methods for more advanced study designs
-%are under development and will be implemented soon.
+\cite{DML} for differential methylation for two-group comparison from BS-seq,
+\cite{DMR1} for differential methylation for data without biological replicate,
+and \cite{DML-general} for differential methylation for general experimental design.
 
 
 \section{Using {\tt DSS} for differential expression analysis}
 
+\subsection{Input data preparation}
+DSS requires a count table (a matrix of {\bf integers}) for gene expression values
+(rows are for genes and columns are for samples).
+This is different from the isoform expression based analysis such as in cufflink/cuffdiff,
+where the gene expressions are represented as non-integers values.
+There are a number of ways to obtain the count table from raw sequencing data (fastq file),
+here we provide some example codes using several Bioconductor packages
+(the codes require installation of {\tt GenomicFeatures}, {\tt Rsamtools},
+and {\tt GenomicRanges} packages).
+
+\begin{enumerate}
+\item Sequence alignment. There are several RNA-seq aligner, for example, {\tt tophat}
+or {\tt STAR}. Assume the alignment result is saved in a BAM file {\tt data.bam}.
+\item Choose a gene annotation. {\tt GenomicFeatures} package provides a convenient way to
+access different gene annotations. For example, if one wants to use RefSeq annotation for human
+genome build hg19, one can use following codes:
+<<eval=FALSE>>=
+    library(GenomicFeatures)
+    txdb = makeTranscriptDbFromUCSC(genom="hg19",tablename="refGene")
+    genes = genes(txdb)
+@
+\item Obtain count table based on the alignment results and gene annotation.
+This can be done in several steps. First read in the BAM file using the {\tt Rsamtools} package:
+<<eval=FALSE>>=
+    bam=scanBam("data.bam")
+@
+Next, create {\tt GRanges} object for the aligned sequence reads.
+<<eval=FALSE>>=
+    IRange.reads=GRanges(seqnames=Rle(bam$rname), ranges=IRanges(bam$pos, width=bam$qwidth))
+@
+Finally, use the {\tt countOverlaps} function in {\tt GenomicRanges} function to obtain the
+read counts overlap each gene.
+<<eval=FALSE>>=
+    counts = countOverlaps(genes, IRange.reads)
+@
+\end{enumerate}
+
+There are other ways to obtain the counts, for example, using
+{\tt QuasR} or {\tt easyRNASeq} Bioconductor package.
+Please refer to the package vignettes for more details.
+
+
 \subsection{Single factor experiment}
-Required inputs for DSS are (1) gene expression values as a matrix of integers,
-rows are for genes and columns are for samples;
-and (2) a vector representing experimental designs. The length of the
-design vector must match the number of columns of input counts.
+In single factor RNA-seq experiment, DSS also requires
+a vector representing experimental designs. The length of the
+design vector must match the number of columns of the count table.
 Optionally, normalization factors or additional annotation for genes
 can be supplied.
 
@@ -212,33 +255,37 @@ To detect differential methylation, statistical tests are conducted at each CpG 
 and then the differential methylation loci (DML) or differential methylation regions (DMR)
 are called based on user specified threshold.
 A rigorous statistical tests should account for
-biological variations among replicates and the coverage depth.
+biological variations among replicates and the sequencing depth.
 Most existing methods for DM analysis are based on {\it ad hoc} methods.
 For example, using Fisher's exact ignores the biological variations,
-using t-test on estimated methylation levels ignores the coverage depth.
-Sometimes arbitrary filtering are recommended: loci with  coverages
-lower than an arbitrary threshold are filtered out.
+using t-test on estimated methylation levels ignores the sequencing depth.
+Sometimes arbitrary filtering are implemented: loci with  depth
+lower than an arbitrary threshold are filtered out, which results in information loss
 
 The DM detection procedure implemented in DSS is based on
 a rigorous Wald test for beta-binomial distributions.
-The test statistics depend on the biological variations (captured by dispersion parameter)
-as well as the coverage depth. An important part of the algorithm
+The test statistics depend on the biological variations (characterized by dispersion parameter)
+as well as the sequencing depth. An important part of the algorithm
 is the estimation of dispersion parameter, which is achieved through a
 shrinkage estimator based on a Bayesian hierarchical model \cite{DML}.
-
-A great advantage of DSS is that the test can be performed even when
-there is no biological replicates. That's because by smoothing procedure,
+An advantage of DSS is that the test can be performed even when
+there is no biological replicates. That's because by smoothing,
 the neighboring CpG sites can be viewed as ``pseudo-replicates", and the dispersion
 can still be estimated with reasonable precision.
 
-This package depends on {\tt bsseq} Bioconductor package, which has neat definition of
+DSS also works for general experimental design,  based on a beta-binomial
+regression model with ``arcsine'' link function.
+Model fitting is performed on transformed data with generalized least
+square method, which achieves much improved computational performance compared
+with methods based on generalized linear model.
+
+DSS depends on {\tt bsseq} Bioconductor package, which has neat definition of
 data structures and many useful utility functions. In order to use the DM detection functionalities,
 {\tt bsseq} needs to be pre-installed.
 
-\subsection{Input data}
-For one BS-seq experiments, after sequence alignment
-and some processing, the BS-seq data are usually
-summarized into following information for each CG position:
+\subsection{Input data preparation}
+DSS requires data from each BS-seq experiment to be summarized
+into following information for each CG position:
 chromosome number, genomic coordinate, total number of reads,
 and number of reads showing methylation. For a sample, this information
 are saved in a simple text file, with each row representing a CpG site.
@@ -249,17 +296,35 @@ chr18   3014904 26      2
 chr18   3031032 33      12
 chr18   3031044 33      13
 chr18   3031065 48      24
-chr18   3031069 17      4
-chr18   3031082 93      37
-chr18   3031089 76      25
-chr18   3031092 76      28
 \end{verbatim}
 
-DML/DMR detection using {\tt DSS} starts from several such text files.
+One can follow below steps to obtain such data from raw sequence file (fastq file),
+using {\tt bismark} for BS-seq alignment and count extraction. These steps require installation
+of {\tt bowtie} or {\tt bowtie2}, {\tt bismark}, and the fasta file for reference genome.
+
+\begin{enumerate}
+
+\item Prepare Bisulfite reference genome. This can be done using the
+{\tt bismark\_genome\_preparation} function (details in bismark manual). Example command is:\\
+{\tt bismark\_genome\_preparation --path\_to\_bowtie /usr/local/bowtie/ --verbose /path/to/refgenomes/}
+
+\item BS-seq alignment. Example command is:\\
+{\tt bismark -q -n 1 -l 50  --path\_to\_bowtie /path/bowtie/ BS-refGenome reads.fastq}\\
+This step will produce two text files {\tt reads.fastq\_bismark.sam} and
+{\tt reads.fastq\_bismark\_SE\_report.txt}.
+
+\item Extract methylation counts using {\tt bismark\_methylation\_extractor} function: \\
+{\tt bismark\_methylation\_extractor -s --bedGraph reads.fastq\_bismark.sam}.
+This will create multiple txt files to summarize methylation call and cytosine context,
+a bedGraph file to display methylation percentage, and a coverage file containing counts information.
+The count file contain following columns:{\tt chr, start, end, methylation\%, count methylated, count unmethylated}.
+This file can be modified to make the input file for DSS.
+
+\end{enumerate}
+
 A typical DML detection contains two simple steps. First one conduct
 DM test at each CpG site, then DML/DMR are called based on the test result
-and user specified threshold.  We will use example data distributed
-with {\tt DSS} to illustrate the procedure.
+and user specified threshold.
 
 \subsection{DML/DMR detection from two-group comparison}
 Below are the steps to call DML or DMR for BS-seq data in two-group comparison setting.
@@ -368,8 +433,9 @@ To use the function, do
   showOneDMR(dmrs[1,], BSobj)
 @
 
-The result figure looks like the following. Note that the figure below is not generated from the above example.
-The example data are from RRBS experiment so the DMRs are much shorter.
+The result figure looks like the following.
+{\bf Note that the figure below is not generated from the above example.
+The example data are from RRBS experiment so the DMRs are much shorter.}
 
 \begin{figure}[h!]
 \centerline{\includegraphics[width=5.5in]{aDMR.pdf}}
@@ -381,7 +447,7 @@ The example data are from RRBS experiment so the DMRs are much shorter.
 \subsection{DML/DMR detection from general experimental design}
 In DSS, BS-seq data from a general experimental design (such as crossed experiment,
 or experiment with covariates) is modeled through a generalized linear model framework.
-We use arcsine link function instead of the typical logit link for it better deals with data
+We use ``arcsine'' link function instead of the typical logit link for it better deals with data
 at boundaries (methylation levels close to 0 or 1).  Linear model fitting is done
 through ordinary least square on transformed methylation levels. Standard errors
 for the estimates are derived with consideration of count data distribution and transformation.
@@ -454,18 +520,22 @@ sessionInfo()
 \textsc{Hao Feng, Karen Conneely and Hao Wu}. (2014).
 \newblock A bayesian hierarchical model to detect differentially methylated
   loci from single nucleotide resolution sequencing data.
-\newblock {\em Nucleic acids research\/}~\textbf{42}(8), e69--e69.
+\newblock {\em Nucleic Acids Research\/}~\textbf{42}(8), e69--e69.
 
 \bibitem{DMR1}
 \textsc{Hao Wu, Tianlei Xu, Hao Feng, Li Chen, Ben Li, Bing Yao, Zhaohui Qin, Peng Jin and Karen N. Conneely}. (2015).
-\newblock Detection of differentially methylated regions from whole-genome bisulfite sequencing data without replicates.
-\newblock {\em Nucleic acids research\/}~doi: 10.1093/nar/gkv715.
+\newblock {Detection of differentially methylated regions from whole-genome bisulfite sequencing data without replicates.}
+\newblock {\em Nucleic Acids Research\/}~doi: 10.1093/nar/gkv715.
 
+\bibitem{DML-general}
+\textsc{Yongseok Park, Hao Wu}. (2016).
+\newblock {Differential methylation analysis for BS-seq data under general experimental design.}
+\newblock {\em Bioinformatics\/}~\textbf{In revision.}
 
 \bibitem{DE}
 \textsc{Hao Wu, Chi Wang and Zhijing Wu}. (2013).
-\newblock A new shrinkage estimator for dispersion improves differential
-  expression detection in rna-seq data.
+\newblock {A new shrinkage estimator for dispersion improves differential
+  expression detection in RNA-seq data.}
 \newblock {\em Biostatistics\/}~\textbf{14}(2), 232--243.
 
 \end{thebibliography}
