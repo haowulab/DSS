@@ -133,7 +133,7 @@ DMLtest.multiFactor.engine <- function(testResult, coef) {
 
     ## Wald test, get p-values and FDR
     stat = betas / ses
-    pvals = 2*(1- pnorm(abs(stat)))
+    pvals = 2*pnorm(-abs(stat))  #2*(1- pnorm(abs(stat)))
     fdrs = p.adjust(pvals, method="BH")
 
     ## return a matrix

@@ -299,7 +299,8 @@ chr18   3031065 48      24
 \end{verbatim}
 
 One can follow below steps to obtain such data from raw sequence file (fastq file),
-using {\tt bismark} for BS-seq alignment and count extraction. These steps require installation
+using {\tt bismark} (version 0.10.0, commands for newer versions could be different)
+for BS-seq alignment and count extraction. These steps require installation
 of {\tt bowtie} or {\tt bowtie2}, {\tt bismark}, and the fasta file for reference genome.
 
 \begin{enumerate}
