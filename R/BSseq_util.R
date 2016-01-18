@@ -222,15 +222,21 @@ est.dispersion.BSseq <- function(X, N, estprob) {
 ## A function to estimate dipersion prior for BS-seq, assuming log-normal prior.
 ## It takes X and N, and only use the sites with big coverages,
 ## then return the mean and sd of prior distribution.
+##
+## For single rep data: will use logN(-3,1) as prior.
 ########################################################################
 est.prior.BSseq.logN <- function(X, N) {
+    if(ncol(X) == 1) ## single rep
+        return(c(-3, 1))
+
     ## keep sites with large coverage and no missing data
     ix=rowMeans(N>10)==1 & rowSums(N==0)==0
     if(sum(ix) == 0) {
         warning("The coverages are too low. Cannot get good estimations of prior. Use arbitrary prior N(-3,1).")
         return(c(-3, 1))
     }
-    X=X[ix,]; N=N[ix,]
+
+    X=X[ix,,drop=FALSE]; N=N[ix,,drop=FALSE]
     ## compute sample mean/var
     p=X/N
     mm=rowMeans(p)

@@ -29,15 +29,15 @@ DMLtest <- function(BSobj, group1, group2, equal.disp=FALSE, smoothing=FALSE, sm
     ## Check the consistence of inputs
     nreps1 <- dim(BS1)[2]
     nreps2<- dim(BS2)[2]
-    if( (nreps1==1 | nreps2==1) ) { ## singel replicate case
-        if(!smoothing )
-            stop("There is no biological replicates. Please set smoothing=TRUE and retry.")
+    if( (nreps1==1 | nreps2==1) & !equal.disp ) { ## singel replicate case, and unequal dispersion in two groups
+        if( !smoothing )
+            stop("There is no biological replicates in at least one condition. Please set smoothing=TRUE or equal.disp=TRUE and retry.")
     }
 
     if(!smoothing) { ## no smoothing.
-        dmls <- DMLtest.noSmooth(BS1, BS2, equal.disp=FALSE)
+        dmls <- DMLtest.noSmooth(BS1, BS2, equal.disp)
     } else { ## smoothing version
-        dmls <- DMLtest.Smooth(BS1, BS2, equal.disp=FALSE, smoothing.span)
+        dmls <- DMLtest.Smooth(BS1, BS2, equal.disp, smoothing.span)
     }
     dmls
 }
@@ -80,7 +80,7 @@ getBSseqIndex <- function(sName, group1, group2) {
 ######################################
 ## test DML without smoothing
 ######################################
-DMLtest.noSmooth <- function(BS1, BS2, equal.disp=FALSE) {
+DMLtest.noSmooth <- function(BS1, BS2, equal.disp) {
     ## grab counts
     x1 <- getCoverage(BS1, type="M")
     n1 <-getCoverage(BS1, type="Cov")
@@ -94,7 +94,7 @@ DMLtest.noSmooth <- function(BS1, BS2, equal.disp=FALSE) {
     estprob2 <- compute.mean.noSmooth(x2, n2)
 
     ## estimate dispersion
-    ## - this part is slow. Should be computed parallely. Will implement later.
+    ## - this part is slow. Could be computed parallely. Will implement later.
     cat("Estimating dispersion for each CpG site, this will take a while ...\n")
     if(equal.disp | nreps1==1 | nreps2==1) {
         phi1 <- phi2 <- est.dispersion.BSseq(cbind(x1,x2), cbind(n1,n2), cbind(estprob1, estprob2))
@@ -104,10 +104,8 @@ DMLtest.noSmooth <- function(BS1, BS2, equal.disp=FALSE) {
     }
 
     ## weight the counts
-    wt1 <- 1 / (1+(n1-1)*phi1);
-    wt1 <- wt1 / mean(wt1)
-    wt2 <- 1 / (1+(n2-1)*phi2);
-    wt2 <- wt2 / mean(wt2)
+    wt1 <- 1 / (1+(n1-1)*phi1);    wt1 <- wt1 / mean(wt1)
+    wt2 <- 1 / (1+(n2-1)*phi2);    wt2 <- wt2 / mean(wt2)
     x1.wt <- x1*wt1
     n1.wt <- n1*wt1
     x2.wt <- x2*wt2
@@ -130,7 +128,7 @@ DMLtest.noSmooth <- function(BS1, BS2, equal.disp=FALSE) {
 ######################################
 ## test DML with smoothing
 ######################################
-DMLtest.Smooth <- function(BS1, BS2, equal.disp=FALSE, smoothing.span) {
+DMLtest.Smooth <- function(BS1, BS2, equal.disp, smoothing.span) {
     ## grab counts
     x1 <- getCoverage(BS1, type="M")
     n1 <- getCoverage(BS1, type="Cov")
@@ -146,9 +144,9 @@ DMLtest.Smooth <- function(BS1, BS2, equal.disp=FALSE, smoothing.span) {
     estprob1 <- compute.mean.Smooth(x1, n1, allchr, allpos, smoothing.span)
     estprob2 <- compute.mean.Smooth(x2, n2, allchr, allpos, smoothing.span)
 
-    ## estimate priors from counts -
+    ## estimate priors from counts - need to rethink the single rep case.
     cat("Estimating dispersion for each CpG site, this will take a while ...\n")
-    if(equal.disp | nreps1==1 | nreps2==1) {
+    if(equal.disp) {
         phi1 <- phi2 <- est.dispersion.BSseq(cbind(x1,x2), cbind(n1,n2), cbind(estprob1, estprob2))
     } else {
         phi1 <- est.dispersion.BSseq(x1, n1, estprob1)
@@ -157,7 +155,7 @@ DMLtest.Smooth <- function(BS1, BS2, equal.disp=FALSE, smoothing.span) {
 
     ## update counts - weight by dispersion
     wt1 <- 1 / (1+(n1-1)*phi1); wt1 <- wt1 / mean(wt1)
-    wt2 <- 1 / (1+(n2-1)*phi2); wt1 <- wt2 / mean(wt2)
+    wt2 <- 1 / (1+(n2-1)*phi2); wt2 <- wt2 / mean(wt2)
     x1.wt <- x1*wt1
     n1.wt <- n1*wt1
     x2.wt <- x2*wt2

@@ -53,13 +53,14 @@ DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE, smoothing.
 }
 
 \section{Single replicate}{
-  When there is no biological replicate (one sample per treatment
-  group), smoothing=TRUE is required. With the smoothed means,
-  dispersion can still be estimated via the shrinkage estimator. This
+  When there is no biological replicate in one or both treatment groups,
+  users can either (1) specify equal.disp=TRUE, which assumes both groups
+  have the same dispersion, then the data from two groups are combined and
+  used as replicates to estimate dispersion; or (2) specify
+  smoothing=TRUE, which uses the smoothed means (methylation levels)
+  to estimate dispersions via a shrinkage estimator. This smoothing
   procedure uses data from neighboring CpG sites as "pseudo-replicate"
-  for estimating biological variance. Results show that the estimation
-  works reasonably well, and the DMR calling results are better than
-  simply using the difference of two smoothed means.}
+  for estimating biological variance.}
 
 \value{A data frame with each row corresponding to a CpG site. Rows are
   sorted by chromosome number and genomic coordinates. The columns
