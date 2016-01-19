@@ -24,8 +24,10 @@ callDML(DMLresult, delta=0.1, p.threshold=1e-5)
     the posterior probability that the difference of the means are
     greater than delta,and then call DML based on that.}
   \item{p.threshold}{
-    A threshold of p-values for defining significance. Loci with p-values less
-    than this threshold will be deemed DMLs.
+    When delta is not specified, this is the threshold of p-values for
+	defining DML, e.g. Loci with p-values less than this threshold will
+	be deemed DMLs. When delta is specified, CpG sites with posterior
+	probability greater than 1-p.threshold are deemed DML.
   }
 }
 
