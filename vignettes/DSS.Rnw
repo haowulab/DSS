@@ -1,6 +1,7 @@
 %\VignetteIndexEntry{Differential expression for RNA-seq data with dispersion shrinkage}
 %\VignettePackage{DSS}
 
+
 \documentclass{article}
 <<style, eval=TRUE, echo=FALSE, results=tex>>=
     BiocStyle::latex(use.unsrturl=FALSE)
@@ -521,23 +522,23 @@ sessionInfo()
 \textsc{Hao Feng, Karen Conneely and Hao Wu}. (2014).
 \newblock A bayesian hierarchical model to detect differentially methylated
   loci from single nucleotide resolution sequencing data.
-\newblock {\em Nucleic Acids Research\/}~\textbf{42}(8), e69--e69.
+\newblock {\em Nucleic Acids Research.\/}~\textbf{42}(8), e69--e69.
 
 \bibitem{DMR1}
 \textsc{Hao Wu, Tianlei Xu, Hao Feng, Li Chen, Ben Li, Bing Yao, Zhaohui Qin, Peng Jin and Karen N. Conneely}. (2015).
 \newblock {Detection of differentially methylated regions from whole-genome bisulfite sequencing data without replicates.}
-\newblock {\em Nucleic Acids Research\/}~doi: 10.1093/nar/gkv715.
+\newblock {\em Nucleic Acids Research.\/}~doi: 10.1093/nar/gkv715.
 
 \bibitem{DML-general}
 \textsc{Yongseok Park, Hao Wu}. (2016).
 \newblock {Differential methylation analysis for BS-seq data under general experimental design.}
-\newblock {\em Bioinformatics\/}~\textbf{In revision.}
+\newblock {\em Bioinformatics.\/}~doi:10.1093/bioinformatics/btw026.
 
 \bibitem{DE}
 \textsc{Hao Wu, Chi Wang and Zhijing Wu}. (2013).
 \newblock {A new shrinkage estimator for dispersion improves differential
   expression detection in RNA-seq data.}
-\newblock {\em Biostatistics\/}~\textbf{14}(2), 232--243.
+\newblock {\em Biostatistics.\/}~\textbf{14}(2), 232--243.
 
 \end{thebibliography}
 
