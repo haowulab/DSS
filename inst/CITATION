@@ -32,3 +32,14 @@ citEntry(entry="article",
                "Detection of differentially methylated regions from whole-genome bisulfite sequencing data without replicates.",
                 "Nucleic acids research. doi: 10.1093/nar/gkv715") )
 
+citEntry(entry="article",
+         title = "Differential methylation analysis for BS-seq data under general experimental design",
+         author = personList( as.person("Yongseok Park"), as.person("Hao Wu")),
+         year = 2016,
+         journal = "Bioinformatics",
+         doi = "10.1093/bioinformatics/btw026",
+         textVersion =
+         paste("Yongseok Park, Hao Wu(2016):",
+               "Differential methylation analysis for BS-seq data under general experimental design.",
+                "Bioinformatics. doi:10.1093/bioinformatics/btw026" ) )
+
