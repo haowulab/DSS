@@ -3,7 +3,7 @@
 waldTest <- function(seqData, sampleA, sampleB, equal.var=FALSE) {
   Y0=exprs(seqData)
   idx1=rowSums(Y0)>0 ## genes with some counts
-  
+
   ## compute two group means
   Y=exprs(seqData) ## +0.1
   design=pData(phenoData(seqData))$designs
@@ -16,10 +16,10 @@ waldTest <- function(seqData, sampleA, sampleB, equal.var=FALSE) {
   ## difference
   idxA=design==sampleA
   nA=sum(idxA)
-  muA=rowMeans(Y2[,idxA])
+  muA=rowMeans(Y2[,idxA,drop=FALSE])
   idxB=design==sampleB
   nB=sum(idxB)
-  muB=rowMeans(Y2[,idxB])
+  muB=rowMeans(Y2[,idxB, drop=FALSE])
   d=muA-muB
   ## variance
   phi.hat=dispersion(seqData)
@@ -33,13 +33,13 @@ waldTest <- function(seqData, sampleA, sampleB, equal.var=FALSE) {
     std=sqrt((muA*sum(1/k[idxA])+ nA*muA^2*phi.hat)/nA^2+
       (muB*sum(1/k[idxB])+nB*muB^2*phi.hat)/nB^2)
   }
-  
+
   stat=d / std
   stat[is.na(stat)]=0
   pval=2*(1-pnorm(abs(stat)))
-  
+
   ## FDR esimation using locfdr. This is only for genes with non-zero counts.
-  ## Need to work on this more, since it's not very good. 
+  ## Need to work on this more, since it's not very good.
   stat1=stat[idx1]
   normstat = (stat1 - median(stat1)) / (IQR(stat1) / 1.349)
   fdrres = locfdr(normstat, plot=0)
@@ -53,13 +53,13 @@ waldTest <- function(seqData, sampleA, sampleB, equal.var=FALSE) {
     Fl = sum(fdrres$mat[ind, "f"])
     fdr.global[i] = 1 - F1l/Fl
   }
-  
-  ## go back to all genes. Genes with all 0 counts will have local and global FDR NA. 
+
+  ## go back to all genes. Genes with all 0 counts will have local and global FDR NA.
   fdr0=rep(NA, nrow(Y))
   fdr.global0=rep(NA, nrow(Y))
   fdr0[idx1]=fdrres$fdr
   fdr.global0[idx1]=fdr.global
-  
+
   ## generate a data frame of reports
   lfc=log((muA+0.5)/(muB+0.5)) ## log fold change
   difExpr=muA-muB ## difference in expressions

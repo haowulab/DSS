@@ -26,18 +26,26 @@ est.dispersion <- function(Y, k, design) {
     Y2=Y/k
   else
     Y2=sweep(Y, 2, k, FUN="/")
-  
+
   ## transform
   z=Y^2-Y
   z=sweep(z, 2, k^2, FUN="/")
 
   ## first find group labels and compute group means.  works only for two groups now
-  ll=levels(design)
-  idxA=design==ll[1]; muA=rowMeans(Y2[,idxA])
-  idxB=design==ll[2]; muB=rowMeans(Y2[,idxB])
-  mus=matrix(0, nrow=nrow(Y), ncol=ncol(Y))
-  mus[,idxA]=muA; mus[,idxB]=muB
-  phi=rowSums(z) / rowSums(mus^2) - 1
+  ll = levels(design)
+  mus = matrix(0, nrow=nrow(Y), ncol=ncol(Y))
+
+  for(i in 1:length(ll)) {
+      idxA = design==ll[i]
+      muA = rowMeans(Y2[,idxA,drop=FALSE])
+      mus[,idxA] = muA
+  }
+##   idxB = design==ll[2];
+##   muB = rowMeans(Y2[,idxB])
+##   mus = matrix(0, nrow=nrow(Y), ncol=ncol(Y))
+##   mus[,idxA] = muA;
+##   mus[,idxB] = muB
+  phi = rowSums(z) / rowSums(mus^2) - 1
 ##   phiA=rowMeans(z[,idxA])/(muA^2) - 1
 ##   phiB=rowMeans(z[,idxB])/(muB^2) - 1
 ##   phi=(phiA+phiB)/2
@@ -55,7 +63,7 @@ est.phi0 <- function(Y) {
   idx0=mm0==0
   res=rep(0, nrow(Y))
   res[idx0]=NA
-  
+
   ix=mm0>0
   Y2=Y2[ix,]
   m=rowMeans(Y2)
@@ -63,7 +71,7 @@ est.phi0 <- function(Y) {
   phi.g = (v-m)/m^2
   res[!idx0]=phi.g
   res[res<1e-5]=1e-5
-  
+
   ##n0=rowMeans(Y==0)
   ##ix.valid=mm0>10 & n0<=0.2
   ##list(phi=res, ix.valid=ix.valid)
