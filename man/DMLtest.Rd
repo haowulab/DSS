@@ -23,12 +23,12 @@ DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE, smoothing.
     shrinkages are performed on two conditions independently.}
   \item{smoothing}{A flag to indicate whether to apply smoothing in
     estimating mean methylation levels.}
-  \item{smoothing.method}{Method for smoothing. Available options are
-    "ma" for moving average, or "BSmooth" for BSmooth smoothing
-    method. This will be ignored if smoothing=FALSE.}
+%   \item{smoothing.method}{Method for smoothing. Available options are
+%     "ma" for moving average, or "BSmooth" for BSmooth smoothing
+%     method. This will be ignored if smoothing=FALSE.}
   \item{smoothing.span}{The size of smoothing window, in
     basepairs. Default is 500.}
-  \item{...}{Other parameters for BSmooth function in "bsseq" package.}
+%   \item{...}{Other parameters for BSmooth function in "bsseq" package.}
 }
 
 \details{
