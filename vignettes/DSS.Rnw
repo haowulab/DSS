@@ -369,12 +369,16 @@ To perform statistical test for DML with smoothing, do:
 dmlTest.sm <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"), smoothing=TRUE)
 @
 
-There are two options for smoothing: a simple moving average, or the BSmooth method
-implemented in {\tt bsseq} package. The BSmooth method produces much smoother curve,
-which is good for visualization purpose. However, it is very computationally intensive,
-and the results are not very different from moving average in terms of DMR calling.
-So we recommend using moving average.
-Smoothing span is an important parameter in smoothing procedure and have  non-trivial
+%There are two options for smoothing: a simple moving average, or the BSmooth method
+%implemented in {\tt bsseq} package. The BSmooth method produces much smoother curve,
+%which is good for visualization purpose. However, it is very computationally intensive,
+%and the results are not very different from moving average in terms of DMR calling.
+%So we recommend using moving average.
+User has the option to smooth the methylation levels or not. For WGBS data, smoothing is recommended
+so that information from nearby CpG sites can be combined to improve the estimation of methylation levels.
+A simple moving average algorithm is implemented for smoothing. 
+In RRBS since the CpG coverage is sparse, smoothing might not alter the results much. 
+If smoothing is requested, smoothing span is an important parameter which has non-trivial
 impact on DMR calling. We use 500 bp as default, and think that it performs well in real data tests.
 
 
