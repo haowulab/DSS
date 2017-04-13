@@ -1,4 +1,5 @@
 import( Biobase )
+import( DelayedArray )
 import( bsseq )
 import(methods)
 useDynLib(DSS)
