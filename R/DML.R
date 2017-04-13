@@ -277,7 +277,7 @@ compute.var.Smooth <- function(estprob1, n1, phi1, smoothing.span, allchr, allpo
         vars <- n1[,irep] * estprob1*(1-estprob1) * (1+(n1[,irep]-1)*phi1)
         ## 'vars' could be a DelayedArray object so turn it into an ordinary
         ## array
-        vars <- as.vector(vars)
+        vars <- as.array(vars)
         ## compute covariances - do by chr
         tmp1 <- estprob1*(1-estprob1)*phi1
         vars.smooth <- rep(0, length(allchr))
