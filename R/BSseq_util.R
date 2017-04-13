@@ -296,6 +296,10 @@ dispersion.shrinkage.BSseq <- function(X, N, prior, estprob) {
 ## The BB distribution is parametrized by mean and dispersion.
 #########################################################
 dbb <- function (size, x, mu, phi, log=TRUE)  {
+    ## 'size' and/or 'x' could be DelayedArray objects so turn them into
+    ## ordinary arrays
+    size=as.array(size)
+    x=as.array(x)
     ## first convert mu/phi to alpha/beta
     tmp=1/phi-1
     alpha=mu*tmp

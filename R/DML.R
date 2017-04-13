@@ -275,6 +275,9 @@ compute.var.Smooth <- function(estprob1, n1, phi1, smoothing.span, allchr, allpo
     for(irep in 1:nreps) { ## loop on replicates
         ## variances at each position
         vars <- n1[,irep] * estprob1*(1-estprob1) * (1+(n1[,irep]-1)*phi1)
+        ## 'vars' could be a DelayedArray object so turn it into an ordinary
+        ## array
+        vars <- as.vector(vars)
         ## compute covariances - do by chr
         tmp1 <- estprob1*(1-estprob1)*phi1
         vars.smooth <- rep(0, length(allchr))
@@ -288,7 +291,7 @@ compute.var.Smooth <- function(estprob1, n1, phi1, smoothing.span, allchr, allpo
     }
     ## compute denominators
     flag <- "sum"
-    n1.sm <- n1
+    n1.sm <- as.array(n1)
     for(i in 1:nreps)
         n1.sm[,i] <- smooth.chr(as.double(n1[,i]), smoothing.span, allchr, allpos, flag)
     denom <- rowSums(n1.sm) ^ 2
