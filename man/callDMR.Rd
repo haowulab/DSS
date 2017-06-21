@@ -20,13 +20,14 @@ callDMR(DMLresult, delta=0, p.threshold=1e-5,
 \arguments{
   \item{DMLresult}{
     A data frame representing the results for DML detection. This should
-    be the result returned from 'DMLtest' function.
+    be the result returned from 'DMLtest' or 'DMLtest.multiFactor' function.
   }
   \item{delta}{A threshold for defining DMR. In DML detection procedure, a hypothesis
     test that the two groups means are equal is conducted at each CpG
     site. Here if 'delta' is specified, the function will compute the
     posterior probability that the difference of the means are greater
-    than delta, and then construct DMR based on that.}
+    than delta, and then construct DMR based on that. This only works
+	when the test results are from 'DMLtest'.}
   \item{p.threshold}{
     A threshold of p-values for calling DMR. Loci with p-values less
     than this threshold will be picked and joint to form the DMRs. See
@@ -75,7 +76,14 @@ callDMR(DMLresult, delta=0, p.threshold=1e-5,
   This function is reasonably fast since the computationally
   intesnsive part is in 'DMLtest'. Users can try different 
   p.threshold values to obtain satisfactory results.
-  
+
+  'delta' is only supported when the experiment is for two-group
+  comparison. This is because in multifactor design, the estimated
+  coefficients in the regression are based on a GLM framework (loosely
+  speaking), thus they don't have clear meaning of methylation level
+  differences. So when the input DMLresult is from DMLtest.multiFactor,
+  'delta' cannot be specified. 
+
   When specifying a 'delta' value, the posterior probability (pp) of
   each CpG site being DML is computed. Then the p.threshold is applied on
   1-pp, e.g., sites with 1-pp<p.threshold is deemed significant. In this
@@ -98,7 +106,7 @@ require(bsseq)
 require(bsseqData)
 data(BS.cancer.ex)
 
-## takea smallportionof data and test
+## take a small portion of data and test
 BSobj <- BS.cancer.ex[140000:150000,]
 dmlTest <- DMLtest(BSobj, group1=c("C1", "C2", "C3"), group2=c("N1","N2","N3"),
    smoothing=TRUE, smoothing.span=500)
@@ -113,5 +121,13 @@ head(dmrs2)
 
 ## visualize one DMR
 showOneDMR(dmrs[1,], BSobj)
+
+## from multifactor design - using a loose threshold to demonstrate
+
+data(RRBS)
+DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell+case:cell)
+DMLtest.cell = DMLtest.multiFactor(DMLfit, coef="cellrN")
+dmr = callDMR(DMLtest.cell, p.threshold=0.05) 
+dmr
 }
 }

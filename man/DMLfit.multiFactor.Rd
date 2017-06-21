@@ -35,6 +35,8 @@ DMLfit.multiFactor(BSobj, design, formula)
   \item{gr}{An object of 'GRanges' for locations of the CpG sites.}
   \item{design}{The input data frame for experimental design.}
   \item{formula}{The input formula for the model.}
+  \item{X}{The design matrix used in regression. It is created based on
+  design and formula.}
   \item{fit}{The model fitting results. This is a list itself, with two
   components: 'beta' - the estimated coefficients; 'se.beta' - estimated
   standard error for beta.}

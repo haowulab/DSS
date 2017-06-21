@@ -16,18 +16,26 @@ DMLtest.multiFactor(DMLfit, coef = 2)
 
 \arguments{
   \item{DMLfit}{Result object returned from 'DMLfit.multiFactor' function.}
-  \item{coef}{Integer to indicate which coefficient in the linear model
+  \item{coef}{It can be an integer to indicate which coefficient in the linear model
 	is be tested for being zero. Be careful of intercept. If the model
 	contains intercept, coef=2 indicate testing the first factor in the
 	formula. If the model has no intercept, testing first factor should
-	use coef=1. }
+	use coef=1.
+
+	It can also be a character for the terms to be tested. In that case it
+	must match one of the column names in the design matrix. One can
+	look at colnames(DMLfit$X) to obtain the column names. 
+  }
 }
 
 \details{
   A Wald test is performed using the estimated coefficient and standard
   error from 'DMLfit.multiFactor'. P-values are derived from test
   statistics based on normal distribution. FDR is computed using cannonical
-  Benjamini-Hochberg procedure. 
+  Benjamini-Hochberg procedure.
+
+  Currently the hypothesis testing procedure only works for testing one
+  column in the design matrix. 
 }
 
 \value{
@@ -49,8 +57,12 @@ data(RRBS)
 ## model fitting
 DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell+case:cell)
 
-## hypothesis testing
+## hypothesis testing - following two lines do the same thing
 DMLtest.cell = DMLtest.multiFactor(DMLfit, coef=3)
+DMLtest.cell = DMLtest.multiFactor(DMLfit, coef="cellrN")
+
+## this doesn't work
+DMLtest.cell = DMLtest.multiFactor(DMLfit, coef="cell")
 
 ## look at distributions of test statistics and p-values
 par(mfrow=c(1,2))
