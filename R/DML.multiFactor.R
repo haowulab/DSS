@@ -20,7 +20,7 @@ DMLfit.multiFactor <- function(BSobj, design, formula) {
     fit <- DMLfit.multiFactor.engine(Y0, N0, X)
 
     ## return
-    list(gr=getBSseq(BSobj, "gr"), design=design, formula=formula, fit=fit)
+    list(gr=getBSseq(BSobj, "gr"), design=design, formula=formula, X=X, fit=fit)
 
 }
 
@@ -113,6 +113,14 @@ DMLtest.multiFactor <- function(DMLfit, coef=2) {
     ## figure out index of the factor to be tested
     ## coef = find.factor(DMLfit$design, DMLfit$formula, factor)
 
+    if(is.character(coef)) {
+        tmp = which(colnames(DMLfit$X) == coef)
+        if(length(tmp) == 0)
+            stop(paste0("Can't find terms to be tested: ", coef,
+                        ". Make sure it matches a column name in design matrix."))
+        coef = tmp
+    }
+
     ## hypothesis testing
     fit = DMLfit$fit
     tmpRes = DMLtest.multiFactor.engine(fit, coef)
@@ -120,6 +128,7 @@ DMLtest.multiFactor <- function(DMLfit, coef=2) {
     ## return a data frame
     gr = DMLfit$gr
     res = data.frame(chr=seqnames(gr), pos=start(gr), tmpRes)
+    class(res)[2] = "DMLtest.multiFactor"
     invisible(res)
 }
 
