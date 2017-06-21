@@ -376,8 +376,8 @@ dmlTest.sm <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"), smoothi
 %So we recommend using moving average.
 User has the option to smooth the methylation levels or not. For WGBS data, smoothing is recommended
 so that information from nearby CpG sites can be combined to improve the estimation of methylation levels.
-A simple moving average algorithm is implemented for smoothing. 
-In RRBS since the CpG coverage is sparse, smoothing might not alter the results much. 
+A simple moving average algorithm is implemented for smoothing.
+In RRBS since the CpG coverage is sparse, smoothing might not alter the results much.
 If smoothing is requested, smoothing span is an important parameter which has non-trivial
 impact on DMR calling. We use 500 bp as default, and think that it performs well in real data tests.
 
@@ -489,6 +489,21 @@ the cell effect is the 3rd column in the design matrix, so we use
 DMLtest.cell = DMLtest.multiFactor(DMLfit, coef=3)
 @
 
+Alternatively, one can specify the name of the parameter to be tested.
+In this case, the input {\tt coef} is a character, and it must match one of
+the column names in the design matrix. The column names of the design matrix
+can be viewed by
+<<>>=
+colnames(DMLfit$X)
+@
+
+The following line also works. Specifying {\tt coef="cellrN"} is the same as
+specifying {\tt coef=3}.
+
+<<>>=
+DMLtest.cell = DMLtest.multiFactor(DMLfit, coef="cellrN")
+@
+
 Result from this step is a data frame with chromosome number, CpG site position,
 test statistics, p-values (from normal distribution), and FDR.
 Rows are sorted by chromosome/position of the CpG sites.
@@ -506,6 +521,19 @@ par(mfrow=c(1,2))
 hist(DMLtest.cell$stat, 50, main="test statistics", xlab="")
 hist(DMLtest.cell$pvals, 50, main="P values", xlab="")
 @
+
+\item DMRs for multifactor design can be called using {\tt callDMR} function:
+<<>>=
+callDMR(DMLtest.cell, p.threshold=0.05)
+@
+
+Note that for results from for multifactor design, {\tt delta} is NOT supported.
+This is because in multifactor design, the estimated
+coefficients in the regression are based on a GLM framework (loosely
+speaking), thus they don't have clear meaning of methylation level
+differences. So when the input DMLresult is from {\tt DMLtest.multiFactor},
+{\tt delta} cannot be specified.
+
 
 \end{enumerate}
 
