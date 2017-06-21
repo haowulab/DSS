@@ -11,12 +11,18 @@ callDMR <- function(DMLresult, delta=0, p.threshold=1e-5,
     if(mean(ix.keep) < 1)  ## with NA entries in the results
         DMLresult = DMLresult[ix.keep,]
 
+    flag.multifactor = FALSE
+    if(class(DMLresult)[2] == "DMLtest.multiFactor")
+        flag.multifactor = TRUE
 
     if(dis.merge > minlen)
         dis.merge = minlen
 
     ## deal with delta
     if( delta > 0 ) {
+        if(flag.multifactor) { # multifactor, doesn't support delta
+            stop("The test results is based on multifactor design, 'delta' is not supported")
+        }
         p1 <- pnorm(DMLresult$diff-delta, sd=DMLresult$diff.se) ## Pr(delta.mu > delta)
         p2 <- pnorm(DMLresult$diff+delta, sd=DMLresult$diff.se, lower.tail=FALSE) ## Pr(-delta.mu < -delta)
         postprob.overThreshold <- p1 + p2
@@ -49,16 +55,28 @@ callDMR <- function(DMLresult, delta=0, p.threshold=1e-5,
     dmrs <- dmrs[ix.good,]
     nCG <- dmrs[,"idx.end.global"] - dmrs[,"idx.start.global"] + 1
 
-    meanMethy1 = meanMethy2 = areaStat = rep(0, nrow(dmrs))
-    for(i in 1:nrow(dmrs)) { ## this part is kind of slow when number of DMRs is large
-        ii=dmrs[i,"idx.start.global"]:dmrs[i,"idx.end.global"]
-        meanMethy1[i] = mean(DMLresult[ii,"mu1"])
-        meanMethy2[i] = mean(DMLresult[ii,"mu2"])
-        areaStat[i] = sum(DMLresult[ii,"stat"])
+    ## create final result data frame
+    if(flag.multifactor) { ## multifactor
+        areaStat = rep(0, nrow(dmrs))
+        for(i in 1:nrow(dmrs)) { ## this part is kind of slow when number of DMRs is large
+            ii=dmrs[i,"idx.start.global"]:dmrs[i,"idx.end.global"]
+            areaStat[i] = sum(DMLresult[ii,"stat"])
+        }
+        result <- data.frame(dmrs[,1:4], nCG=nCG, areaStat=areaStat)
+
+    } else { ## single factor
+        meanMethy1 = meanMethy2 = areaStat = rep(0, nrow(dmrs))
+        for(i in 1:nrow(dmrs)) { ## this part is kind of slow when number of DMRs is large
+            ii=dmrs[i,"idx.start.global"]:dmrs[i,"idx.end.global"]
+            meanMethy1[i] = mean(DMLresult[ii,"mu1"])
+            meanMethy2[i] = mean(DMLresult[ii,"mu2"])
+            areaStat[i] = sum(DMLresult[ii,"stat"])
+        }
+
+        result <- data.frame(dmrs[,1:4], nCG=nCG, meanMethy1, meanMethy2,
+                             diff.Methy=meanMethy1-meanMethy2, areaStat=areaStat)
     }
 
-    result <- data.frame(dmrs[,1:4], nCG=nCG, meanMethy1, meanMethy2, diff.Methy=meanMethy1-meanMethy2,
-                         areaStat=areaStat)
 
     ## sort by areaStat
     ix = sort(abs(result$areaStat), decreasing=TRUE, index.return=TRUE)$ix
