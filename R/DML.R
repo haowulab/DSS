@@ -39,7 +39,9 @@ DMLtest <- function(BSobj, group1, group2, equal.disp=FALSE, smoothing=FALSE, sm
     } else { ## smoothing version
         dmls <- DMLtest.Smooth(BS1, BS2, equal.disp, smoothing.span)
     }
-    dmls
+
+    class(dmls)[2] = "DMLtest"
+    invisible(dmls)
 }
 
 ##################################################
