@@ -231,7 +231,7 @@ est.prior.BSseq.logN <- function(X, N) {
 
     ## keep sites with large coverage and no missing data
     ix=rowMeans(N>10)==1 & rowSums(N==0)==0
-    if(sum(ix) == 0) {
+    if(sum(ix) < 50) {
         warning("The coverages are too low. Cannot get good estimations of prior. Use arbitrary prior N(-3,1).")
         return(c(-3, 1))
     }
