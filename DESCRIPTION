@@ -16,3 +16,4 @@ Description: DSS is an R library performing differntial analysis for
 License: GPL
 biocViews: Sequencing, RNASeq, ChIPSeq, DNAMethylation,GeneExpression,
         DifferentialExpression,DifferentialMethylation
+PackageStatus: Deprecated
