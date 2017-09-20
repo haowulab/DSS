@@ -443,6 +443,7 @@ The result figure looks like the following.
 {\bf Note that the figure below is not generated from the above example.
 The example data are from RRBS experiment so the DMRs are much shorter.}
 
+\newpage
 \begin{figure}[h!]
 \centerline{\includegraphics[width=5.5in]{aDMR.pdf}}
 \end{figure}
@@ -455,11 +456,74 @@ In DSS, BS-seq data from a general experimental design (such as crossed experime
 or experiment with covariates) is modeled through a generalized linear model framework.
 We use ``arcsine'' link function instead of the typical logit link for it better deals with data
 at boundaries (methylation levels close to 0 or 1).  Linear model fitting is done
-through ordinary least square on transformed methylation levels. Standard errors
-for the estimates are derived with consideration of count data distribution and transformation.
-A Wald test is applied to perform hypothesis testing.
+through ordinary least square on transformed methylation levels.
+Variance/covariance matrices for the estimates are derived with consideration
+of count data distribution and transformation.
+
+\subsubsection{Hypothesis testing in general experimental design}
+In a general design, the data are modeled through a multiple regression
+thus there are multiple regression coefficients. In contrast, there is only one parameter
+in two-group comparison which is the difference between two groups.
+Under this type of design, hypothesis testing can be performed for one, multiple,
+or any linear combination of the parameters.
+
+DSS provides flexible functionalities for hypothesis testing.
+User can test one parameter in the model through a Wald test,
+or any linear combination of the parameters through an F-test.
+
+The {\tt DMLtest.multiFactor} function provide interfaces for testing one parameter
+(through {\tt coef} parameter), one term in the model (through {\tt term} parameter),
+or linear combinations of the parameters (through {\tt Contrast} parameter).
+We illustrate the usage of these parameters through a simple example below.
+Assume we have an experiment from three strains (A, B, C) and two sexes (M and F),
+each has 2 biological replicates (so there are 12 datasets in total).
+
+<<>>=
+Strain = rep(c("A", "B", "C"), 4)
+Sex = rep(c("M", "F"), each=6)
+design = data.frame(Strain,Sex)
+design
+@
+
+To test the additive effect of Strain and Sex, a design formula is {\tt ~Strain+Sex},
+and the corresponding design matrix for the linear model is:
+<<>>=
+X = model.matrix(~Strain+ Sex, design)
+X
+@
+
+Under this design, we can do different tests using the {\tt DMLtest.multiFactor} function:
+\begin{itemize}
+\item If we want to test the sex effect, we can either specify {\tt coef=4}, {\tt coef="SexM"},
+or {\tt term="Sex"}. Notice that when using character for coef, the character must match the column name of the
+design matrix, cannot do {\tt coef="Sex"}. It is also important to
+note that using {\tt term="Sex"} only tests a single paramter in the model
+because sex only has two levels.
+
+\item If we want to test the effect of Strain B versus Strain A (this is also testing a single parameter),
+we do {\tt coef=2} or {\tt coef="StrainB"}.
+
+\item If we want to test the whole Strain effect, it becomes a compound test because Strain has three levels.
+We do {\tt term="Strain"}, which tests {\tt StrainB} and {\tt StrainC} simultaneously.
+We can also make a Contrast matrix L as following. It's clear that testing $L^T \beta = 0$ is equivalent
+to testing StrainB=0 and StrainC=0.
+<<>>=
+L = cbind(c(0,1,0,0),c(0,0,1,0))
+L
+@
+
+\item One can perform more general test, for example, to test StrainB=StrainC,
+or that strains B and C has no difference (but they could be different from Strain A).
+In this case, we need to make following contrast matrix:
+<<>>=
+matrix(c(0,1,-1,0), ncol=1)
+@
+
+\end{itemize}
 
 \begin{enumerate}
+
+\subsubsection{Example analysis for data from general experimental design}
 
 \item Load in data distributed with {\tt DSS}. This is a small portion of a set of
 RRBS experiments. There are 5000 CpG sites and 16 samples.
@@ -534,11 +598,26 @@ speaking), thus they don't have clear meaning of methylation level
 differences. So when the input DMLresult is from {\tt DMLtest.multiFactor},
 {\tt delta} cannot be specified.
 
-
+\item More flexible way to specify a hypothesis test.
+ Following 4 tests should produce the same results,  since 'case' only has two levels.
+ However the p-values from F-tests (using term or Contrast) are
+ slightly different, due to normal approximation in Wald test.
+<<>>=
+## fit a model with additive effect only
+DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell)
+## test case effect
+test1 = DMLtest.multiFactor(DMLfit, coef=2)
+test2 = DMLtest.multiFactor(DMLfit, coef="caseSLE")
+test3 = DMLtest.multiFactor(DMLfit, term="case")
+Contrast = matrix(c(0,1,0), ncol=1)
+test4 = DMLtest.multiFactor(DMLfit, Contrast=Contrast)
+cor(cbind(test1$pval, test2$pval, test3$pval, test4$pval))
+@
 \end{enumerate}
 
-These procedures are computationally very efficient. For a typical RRBS dataset with 4 million CpG sites,
-it takes around 20 minutes. In comparison, other methods such as RADMeth or BiSeq
+The model fitting and hypothesis test procedures are computationally very efficient.
+For a typical RRBS dataset with 4 million CpG sites,
+it usually takes less than half hour. In comparison, other similar software such as RADMeth or BiSeq
 takes at least 10 times longer.
 
 

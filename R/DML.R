@@ -146,7 +146,7 @@ DMLtest.Smooth <- function(BS1, BS2, equal.disp, smoothing.span) {
     estprob1 <- compute.mean.Smooth(x1, n1, allchr, allpos, smoothing.span)
     estprob2 <- compute.mean.Smooth(x2, n2, allchr, allpos, smoothing.span)
 
-    ## estimate priors from counts - need to rethink the single rep case.
+    ## estimate priors from counts 
     cat("Estimating dispersion for each CpG site, this will take a while ...\n")
     if(equal.disp) {
         phi1 <- phi2 <- est.dispersion.BSseq(cbind(x1,x2), cbind(n1,n2), cbind(estprob1, estprob2))

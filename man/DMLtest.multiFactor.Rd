@@ -11,7 +11,7 @@
 }
 
 \usage{
-DMLtest.multiFactor(DMLfit, coef = 2)
+DMLtest.multiFactor(DMLfit, coef = 2, term, Contrast)
 }
 
 \arguments{
@@ -26,16 +26,45 @@ DMLtest.multiFactor(DMLfit, coef = 2)
 	must match one of the column names in the design matrix. One can
 	look at colnames(DMLfit$X) to obtain the column names. 
   }
+  \item{term}{The term(s) to be tested, as one or a vector of
+	characters. Can be multiple terms. See 'Hypothesis test' section for
+	details.} 
+  \item{Contrast}{A contrast matrix for hypothesis testing. The number
+	of rows must equal to the number of columns in the design matrix
+	ncol(DMLfit$X). See 'Hypothesis test' section for details.}																
 }
 
-\details{
+\section{Hypothesis test}{
+  User can specify one of the following parameter for testing:
+  'coef', 'term', or 'Contrast'.
+
+  When specifying 'coef', it tests *one* parameter in the model, which
+  corresponds to one column in the design matrix. In this case,   
   A Wald test is performed using the estimated coefficient and standard
   error from 'DMLfit.multiFactor'. P-values are derived from test
-  statistics based on normal distribution. FDR is computed using cannonical
-  Benjamini-Hochberg procedure.
+  statistics based on normal distribution.
 
-  Currently the hypothesis testing procedure only works for testing one
-  column in the design matrix. 
+  When specifying 'term', it tests the whole term in the model. If the
+  term is continuous or a categorical variable with only two levels (one
+  degree of freedom), it is equivalent to specifying 'coef' because it
+  tests only one parameter in the model. However, when the term is a
+  categorical variable with more than two levels, it will test multiple
+  parameters at the same time so it's a compound hypothesis test, and a
+  F-test will be performed. 
+  
+  Specifying 'Contrast' matrix provides the most flexible test
+  procedure. It can test any linear combination of the parameter, and
+  F-test will be performed. Let L be the contrast matrix. The hypothesis
+  test performed is H0: L^T * beta = 0. Thus the number of rows in L must
+  equal to the number of items of beta (which is the number of columns
+  in the design matrix). 
+
+  Using 'term' or 'Contrast' will be slower especially when there are a
+  lot of CpG sites, because the computation cannot be vectorized (each
+  CpG site has a different variance/covariance matrix for the estimated
+  coefficients).
+  
+  FDR is computed using cannonical Benjamini-Hochberg procedure.
 }
 
 \value{
@@ -68,6 +97,21 @@ DMLtest.cell = DMLtest.multiFactor(DMLfit, coef="cell")
 par(mfrow=c(1,2))
 hist(DMLtest.cell$stat, 100, main="test statistics")
 hist(DMLtest.cell$pvals, 100, main="P values")
+
+## Using term or Contrast
+DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell)
+
+## following 4 tests should produce the same results,
+## since 'case' only has two levels.
+## However the p-values from F-tests (using term or Contrast) are
+## slightly different, due to normal approximation in Wald test.
+test1 = DMLtest.multiFactor(DMLfit, coef=2)
+test2 = DMLtest.multiFactor(DMLfit, coef="caseSLE")
+test3 = DMLtest.multiFactor(DMLfit, term="case")
+Contrast = matrix(c(0,1,0), ncol=1)
+test4 = DMLtest.multiFactor(DMLfit, Contrast=Contrast)
+cor(cbind(test1$pval, test2$pval, test3$pval, test4$pval))
+
 }
 
 

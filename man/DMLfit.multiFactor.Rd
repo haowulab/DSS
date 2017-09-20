@@ -11,18 +11,22 @@
 }
 
 \usage{
-DMLfit.multiFactor(BSobj, design, formula)
+DMLfit.multiFactor(BSobj, design, formula, smoothing=FALSE, smoothing.span=500)
 }
 
 \arguments{
   \item{BSobj}{An object of BSseq class for the BS-seq data.}
   \item{design}{A data frame for experimental design. Number of rows
-  must match the number of columns of the counts in BSobj.}
+	must match the number of columns of the counts in BSobj.}
   \item{formula}{A formula for the linear model.}
+  \item{smoothing}{A flag to indicate whether to apply smoothing. When
+	true, the counts will be smoothed by a simple moving average method.}
+  \item{smoothing.span}{The size of smoothing window, in
+	basepairs. Default is 500.} 
 }
 
 \details{
-  The line model fitting is done through ordinary least square on the
+  The lineear model fitting is done through ordinary least square on the
   arscine transformed methylation percentages. The estimated standard
   errors are computed with consideration of the data (count)
   distribution and transformation. This function is extremely
@@ -38,8 +42,10 @@ DMLfit.multiFactor(BSobj, design, formula)
   \item{X}{The design matrix used in regression. It is created based on
   design and formula.}
   \item{fit}{The model fitting results. This is a list itself, with two
-  components: 'beta' - the estimated coefficients; 'se.beta' - estimated
-  standard error for beta.}
+  components: 'beta' - the estimated coefficients; 'var.beta' - estimated
+  variance/covariance matrices for beta. Note that var.beta for a CpG
+  site should be a ncol(X) x ncol(X) matrix, but is flattend to a vector
+  so that the matrices for all CpG sites can be saved as a matrix.}
 }
 
 \author{
@@ -54,6 +60,9 @@ DMLfit.multiFactor(BSobj, design, formula)
 data(RRBS)
 ## model fitting
 DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell+case:cell)
+
+## with smoothing:
+DMLfit.sm = DMLfit.multiFactor(RRBS, design, ~case+cell+case:cell, smoothing=TRUE)
 
 ## hypothesis testing
 DMLtest.cell = DMLtest.multiFactor(DMLfit, coef=3)

@@ -1,7 +1,7 @@
 Package: DSS
 Title: Dispersion shrinkage for sequencing data.
-Version: 2.18.0
-Date: 2017-6-20
+Version: 2.22.0
+Date: 2017-9-20
 Author: Hao Wu <hao.wu@emory.edu>
 Depends: Biobase, bsseq, splines, methods
 Maintainer: Hao Wu <hao.wu@emory.edu>
@@ -16,4 +16,3 @@ Description: DSS is an R library performing differntial analysis for
 License: GPL
 biocViews: Sequencing, RNASeq, ChIPSeq, DNAMethylation,GeneExpression,
         DifferentialExpression,DifferentialMethylation
-PackageStatus: Deprecated
