@@ -82,6 +82,7 @@ DMLtest.multiFactor(DMLfit, coef = 2, term, Contrast)
 }
 
 \examples{
+\dontrun{
 data(RRBS)
 ## model fitting
 DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell+case:cell)
@@ -111,7 +112,7 @@ test3 = DMLtest.multiFactor(DMLfit, term="case")
 Contrast = matrix(c(0,1,0), ncol=1)
 test4 = DMLtest.multiFactor(DMLfit, Contrast=Contrast)
 cor(cbind(test1$pval, test2$pval, test3$pval, test4$pval))
-
+}
 }
 
 
