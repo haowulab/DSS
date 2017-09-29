@@ -146,7 +146,7 @@ DMLtest.Smooth <- function(BS1, BS2, equal.disp, smoothing.span) {
     estprob1 <- compute.mean.Smooth(x1, n1, allchr, allpos, smoothing.span)
     estprob2 <- compute.mean.Smooth(x2, n2, allchr, allpos, smoothing.span)
 
-    ## estimate priors from counts 
+    ## estimate priors from counts
     cat("Estimating dispersion for each CpG site, this will take a while ...\n")
     if(equal.disp) {
         phi1 <- phi2 <- est.dispersion.BSseq(cbind(x1,x2), cbind(n1,n2), cbind(estprob1, estprob2))
@@ -206,6 +206,7 @@ waldTest.DML <- function(x1,n1,estprob1, phi1, x2,n2, estprob2, phi2, smoothing,
 ## compute Wald test statistics when there's no smoothing
 ###########################################################
 compute.waldStat.noSmooth <- function(estprob1, estprob2, n1, n2, phi1, phi2) {
+    rowSums <- DelayedArray::rowSums
     dif <- estprob1 - estprob2
     n1m <- rowSums(n1);    n2m <- rowSums(n2)
     var1 <- rowSums(n1*estprob1*(1-estprob1)*(1+(n1-1)*phi1)) / (n1m)^2
@@ -361,7 +362,7 @@ callDML <- function(DMLresult, delta=0.1, p.threshold=1e-5) {
 ## function to determine what loci to keep, based on coverage depth
 ####################################################################
 hasCoverage <- function(nn, allpos, thresh=2) {
-    nn2 <- rowSums(nn)
+    nn2 <- DelayedArray::rowSums(nn)
     ws <- 200
     flag <- 0
     nn.sm <- .Call("windowFilter", as.double(nn2), as.integer(allpos), as.integer(ws), as.integer(flag))

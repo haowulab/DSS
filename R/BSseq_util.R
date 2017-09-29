@@ -135,6 +135,7 @@ rowVars <- function (x, center = NULL, ...) {
 ######################################################################################
 compute.mean.noSmooth <- function(X, N) {
     p <- X/N
+    rowSums <- DelayedArray::rowSums
     const <- mean(p, na.rm=TRUE)
     p <- (rowSums(X)+const)/(rowSums(N)+1)
 
@@ -149,6 +150,8 @@ compute.mean.noSmooth <- function(X, N) {
 ## Might add things later.
 ######################################################################################
 compute.mean.Smooth <- function(X, N, allchr, allpos, ws=500) {
+    rowSums <- DelayedArray::rowSums
+
     ## collapse the replicates and smoothing
     nreps <-  ncol(N)
     p1 <- X / N
@@ -226,6 +229,9 @@ est.dispersion.BSseq <- function(X, N, estprob) {
 ## For single rep data: will use logN(-3,1) as prior.
 ########################################################################
 est.prior.BSseq.logN <- function(X, N) {
+    rowMeans = DelayedArray::rowMeans
+    rowSums = DelayedArray::rowSums
+
     if(ncol(X) == 1) ## single rep
         return(c(-3, 1))
 
@@ -277,7 +283,7 @@ dispersion.shrinkage.BSseq <- function(X, N, prior, estprob) {
         estprob <- as.matrix(estprob)
 
     ## skip those without coverage
-    ix <- rowSums(N>0) > 0
+    ix <- DelayedArray::rowSums(N>0) > 0
     X2 <- X[ix, ,drop=FALSE]; N2 <- N[ix,,drop=FALSE]; estprob2 <- estprob[ix,,drop=FALSE]
     shrk.phi2 <- rep(0, nrow(X2))
     for(i in 1:nrow(X2)) {

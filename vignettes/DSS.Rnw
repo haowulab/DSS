@@ -345,7 +345,7 @@ dat1.2 <- read.table(file.path(path, "cond1_2.txt"), header=TRUE)
 dat2.1 <- read.table(file.path(path, "cond2_1.txt"), header=TRUE)
 dat2.2 <- read.table(file.path(path, "cond2_2.txt"), header=TRUE)
 BSobj <- makeBSseqData( list(dat1.1, dat1.2, dat2.1, dat2.2),
-     c("C1","C2", "N1", "N2") )[1:10000,]
+     c("C1","C2", "N1", "N2") )[1:1000,]
 BSobj
 @
 
