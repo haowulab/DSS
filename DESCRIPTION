@@ -3,7 +3,7 @@ Title: Dispersion shrinkage for sequencing data
 Version: 2.22.0
 Date: 2017-9-20
 Author: Hao Wu <hao.wu@emory.edu>
-Depends: R (>=3.3), Biobase, bsseq, splines, methods
+Depends: R (>= 3.3), Biobase, bsseq, splines, methods
 Imports: stats, graphics, DelayedArray
 Maintainer: Hao Wu <hao.wu@emory.edu>
 Suggests: BiocStyle
