@@ -2,8 +2,8 @@
 \alias{callDMR}
 
 \title{
-  Function to detect differntially methylated regions (DMR) for two group
-  comparisons of bisulfite sequencing (BS-seq) data.
+  Function to detect differntially methylated regions (DMR) from
+  bisulfite sequencing (BS-seq) data. 
 }
 \description{
   This function takes the results from DML testing procedure ('callDML'
@@ -27,7 +27,8 @@ callDMR(DMLresult, delta=0, p.threshold=1e-5,
     site. Here if 'delta' is specified, the function will compute the
     posterior probability that the difference of the means are greater
     than delta, and then construct DMR based on that. This only works
-	when the test results are from 'DMLtest'.}
+	when the test results are from 'DMLtest', which is for two-group
+	comparison.}
   \item{p.threshold}{
     A threshold of p-values for calling DMR. Loci with p-values less
     than this threshold will be picked and joint to form the DMRs. See

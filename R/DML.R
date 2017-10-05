@@ -16,8 +16,8 @@ DMLtest <- function(BSobj, group1, group2, equal.disp=FALSE, smoothing=FALSE, sm
     ## remove loci with all 0 coverages in a condition
     ## It's not required that all replicates have coverage.
     ## But there must be some coverage from at least one replicate.
-    n1 <- getBSseq(BS1, "Cov")
-    n2 <- getBSseq(BS2, "Cov")
+    n1 <- as.array(getBSseq(BS1, "Cov"))
+    n2 <- as.array(getBSseq(BS2, "Cov"))
     ## remove if a rather long strech (like 200 bps) of regions have no coverage
     allpos <- start(BSobj)
     ix1 <- hasCoverage(n1, allpos)
@@ -84,10 +84,10 @@ getBSseqIndex <- function(sName, group1, group2) {
 ######################################
 DMLtest.noSmooth <- function(BS1, BS2, equal.disp) {
     ## grab counts
-    x1 <- getCoverage(BS1, type="M")
-    n1 <-getCoverage(BS1, type="Cov")
-    x2 <-getCoverage(BS2, type="M")
-    n2 <-getCoverage(BS2, type="Cov")
+    x1 <- as.array(getCoverage(BS1, type="M"))
+    n1 <- as.array(getCoverage(BS1, type="Cov"))
+    x2 <- as.array(getCoverage(BS2, type="M"))
+    n2 <- as.array(getCoverage(BS2, type="Cov"))
     nreps1 <- ncol(x1)
     nreps2 <- ncol(x2)
 
@@ -132,10 +132,10 @@ DMLtest.noSmooth <- function(BS1, BS2, equal.disp) {
 ######################################
 DMLtest.Smooth <- function(BS1, BS2, equal.disp, smoothing.span) {
     ## grab counts
-    x1 <- getCoverage(BS1, type="M")
-    n1 <- getCoverage(BS1, type="Cov")
-    x2 <- getCoverage(BS2, type="M")
-    n2 <- getCoverage(BS2, type="Cov")
+    x1 <- as.array(getCoverage(BS1, type="M"))
+    n1 <- as.array(getCoverage(BS1, type="Cov"))
+    x2 <- as.array(getCoverage(BS2, type="M"))
+    n2 <- as.array(getCoverage(BS2, type="Cov"))
     nreps1 <- ncol(x1)
     nreps2 <- ncol(x2)
     allchr <- as.character(seqnames(BS1))
@@ -206,7 +206,7 @@ waldTest.DML <- function(x1,n1,estprob1, phi1, x2,n2, estprob2, phi2, smoothing,
 ## compute Wald test statistics when there's no smoothing
 ###########################################################
 compute.waldStat.noSmooth <- function(estprob1, estprob2, n1, n2, phi1, phi2) {
-    rowSums <- DelayedArray::rowSums
+    ##rowSums <- DelayedArray::rowSums
     dif <- estprob1 - estprob2
     n1m <- rowSums(n1);    n2m <- rowSums(n2)
     var1 <- rowSums(n1*estprob1*(1-estprob1)*(1+(n1-1)*phi1)) / (n1m)^2
@@ -362,7 +362,7 @@ callDML <- function(DMLresult, delta=0.1, p.threshold=1e-5) {
 ## function to determine what loci to keep, based on coverage depth
 ####################################################################
 hasCoverage <- function(nn, allpos, thresh=2) {
-    nn2 <- DelayedArray::rowSums(nn)
+    nn2 <- rowSums(nn)
     ws <- 200
     flag <- 0
     nn.sm <- .Call("windowFilter", as.double(nn2), as.integer(allpos), as.integer(ws), as.integer(flag))

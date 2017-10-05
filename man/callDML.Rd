@@ -2,8 +2,8 @@
 \alias{callDML}
 
 \title{
-  Function to detect differntially methylated loci (DML) for two group
-  comparisons of bisulfite sequencing (BS-seq) data.
+  Function to detect differntially methylated loci (DML) from bisulfite
+  sequencing (BS-seq) data. 
 }
 \description{
   This function takes the results from DML testing procedure ('DMLtest'
@@ -11,7 +11,7 @@
   significant are deemed as DMLs. 
 }
 \usage{
-callDML(DMLresult, delta=0.1, p.threshold=1e-5)
+callDML(DMLresult, delta=0, p.threshold=1e-5)
 }
 
 \arguments{
@@ -22,7 +22,9 @@ callDML(DMLresult, delta=0.1, p.threshold=1e-5)
     hypothesis test that the two groups means are equalis is conducted at each CpG
     site. Here if 'delta' is specified, the function will compute
     the posterior probability that the difference of the means are
-    greater than delta,and then call DML based on that.}
+    greater than delta,and then call DML based on that. This only works
+    when the test results are from 'DMLtest', which is for two-group
+    comparison. For general design, this has to be set to 0.}
   \item{p.threshold}{
     When delta is not specified, this is the threshold of p-values for
 	defining DML, e.g. Loci with p-values less than this threshold will
@@ -97,6 +99,12 @@ dmlTest <- DMLtest(BSobj, group1=c("C1", "C2", "C3"), group2=c("N1","N2","N3"),
 dmls <- callDML(dmlTest)
 head(dmls)
 
+## from multifactor design
+data(RRBS)
+DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell+case:cell)
+DMLtest.cell = DMLtest.multiFactor(DMLfit, coef="cellrN")
+dml = callDMR(DMLtest.cell, p.threshold=0.05)
+head(dml)
 
 }
 }

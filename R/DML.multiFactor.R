@@ -33,7 +33,7 @@ DMLfit.multiFactor <- function(BSobj, design, formula, smoothing=FALSE, smoothin
     }
 
     ## fit the model
-    fit <- DMLfit.multiFactor.engine(Y0, N0, X, Z0)
+    fit <- DMLfit.multiFactor.engine(as.array(Y0), as.array(N0), X, as.array(Z0))
 
     ## return
     list(gr=getBSseq(BSobj, "gr"), design=design, formula=formula, X=X, fit=fit)
@@ -45,7 +45,8 @@ DMLfit.multiFactor <- function(BSobj, design, formula, smoothing=FALSE, smoothin
 ## Engine function for Fitting multiple factor DM model.
 ############################################################################
 DMLfit.multiFactor.engine <- function(Y0, N0, X0, Z0) {
-    if( !is.matrix(Y0) | !is.matrix(N0) )
+
+    if( (!is.matrix(Y0) | !is.matrix(N0)) & (class(Y0)!="DelayedMatrix" | class(N0)!="DelayedMatrix") )
         stop("Y and N need to be matrices.\n")
 
     ## get dimensions
