@@ -217,16 +217,21 @@ DMLtest.multiFactor.Contrast <- function(DMLfit, Contrast) {
     for( i in 1:nrow(betas) ) {
         Sigma = matrix(fit$var.beta[i,], ncol=p)
         tmp = solve(t(Contrast) %*% Sigma %*% Contrast)
-        thisAbeta = Abeta[i,]
+        thisAbeta = Abeta[i,,drop=FALSE]
         stat[i] = thisAbeta %*% tmp %*% t(thisAbeta)
     }
 
-    ## get the sign of the contrast. This is to be added to test statistics
-    signs = sign(betas %*% Contrast)
+    ## get the sign of the contrast if there's only one contrast.
+    ## This is to be added to test statistics
+    ## When Contrast has multiple rows, there won't be a sign for test statistics.
+    if(nrow(Contrast) == 1)
+        signs = sign(betas %*% Contrast)
+    else signs = 1
 
     ## get p-values. Stat follows F_{r, R}
     ## I found that using F distribution, the p-values are pretty large.
-    ## Use sqrt(f) and normal gives much smaller p-values.
+    ## Use sqrt(f) and normal gives much smaller p-values,
+    ## and this is consistent with the Wald test in two-group comparison.
     r = ncol(Contrast)
 ##     R = nrow(DMLfit$X) - ncol(DMLfit$X)
 ##     stat = stat / r
