@@ -11,7 +11,7 @@
   significant are deemed as DMLs. 
 }
 \usage{
-callDML(DMLresult, delta=0, p.threshold=1e-5)
+callDML(DMLresult, delta=0.1, p.threshold=1e-5)
 }
 
 \arguments{
