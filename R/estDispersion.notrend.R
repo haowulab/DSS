@@ -6,15 +6,15 @@ estDispersion.notrend <- function(seqData) {
 
   ## make design matrix
   X=makeDesign(design, k)
-  
+
   ## compute the expected Y
   Y=exprs(seqData)+0.5
   muY = calc.expY(Y, X)
-  
+
   ## estimate gene specific phi
   df=ncol(Y)-ncol(X)
   phi.g = est.dispersion(Y, k, design)
-  
+
   ## shrink phi
   phi.hat = shrink.dispersion.notrend(phi.g, Y, muY, k, design)
   dispersion(seqData) = phi.hat
@@ -23,18 +23,18 @@ estDispersion.notrend <- function(seqData) {
 }
 
 ### function to shrink dispersion
-## Y is normalized by size factors and designs. 
+## Y is normalized by size factors and designs.
 shrink.dispersion.notrend <- function(phi.g, Y, muY, k, design) {
   nsamples=ncol(Y)
   ngenes=nrow(Y)
   phi.hat=rep(0,ngenes)
-  
+
   ## estimate hyper parameters - this is tricky!!
   s=rowMeans(Y)
   ii=s>=5
   phi.g0=phi.g[ii]
   lphi.g0=log(phi.g0)
-  ## It seems phi.g is a little under estimated. 
+  ## It seems phi.g is a little under estimated.
   m0=median(lphi.g0, na.rm=TRUE) ## it seems m0 is under estimated when var(OD) is small
   sigma2.mar=(IQR(lphi.g0, na.rm=TRUE) / 1.349)^2
   ## estimate the part being over estimated and subtract.
@@ -53,7 +53,7 @@ shrink.dispersion.notrend <- function(phi.g, Y, muY, k, design) {
       tmp1=1/(1+Ey*phi)
       tmp2=1-tmp1
       -(sum(lgamma(alpha+y)) - nsamples*lgamma(alpha) + alpha*sum(log(tmp1)) + sum(y*log(tmp2)) -
-        ((log(phi) - m0)^2) / (2*(sigma^2)) + log(phi) - log(sigma))
+        ((log(phi) - m0)^2) / (2*(sigma^2)) - log(phi) - log(sigma))
     }
     return(optimize(obj, interval=c(0.01, max.value))$minimum)
   }
@@ -81,5 +81,5 @@ compute.baseSigma.notrend <- function(phi0, Y, muY,k, design) {
 }
 
 
-  
+
 

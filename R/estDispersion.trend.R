@@ -65,7 +65,7 @@ shrink.dispersion.trend <- function(phi.g, lOD.pred, Y, muY, k, design) {
       tmp1=1/(1+Ey*phi)
       tmp2=1-tmp1
       -(sum(lgamma(alpha+y)) - nsamples*lgamma(alpha) + alpha*sum(log(tmp1)) + sum(y*log(tmp2)) -
-        ((log(phi) - mu.phi)^2) / (2*(sigma^2)) + log(phi) - log(sigma))
+        ((log(phi) - mu.phi)^2) / (2*(sigma^2)) - log(phi) - log(sigma))
     }
     return(optimize(obj, interval=c(0.01, max.value))$minimum)
   }
