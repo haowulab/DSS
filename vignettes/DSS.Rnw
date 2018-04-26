@@ -233,11 +233,10 @@ seqData=estDispersion(seqData)
 @
 
 
-\item Using edgeR's function to do glm model fitting, but plugging in the estimated size factors and  dispersion
+\item Using edgeR's function to do glm model fitting, but plugging in the estimated dispersion
 from DSS.
 <<>>=
-fit.edgeR <- glmFit(counts, X, lib.size=normalizationFactor(seqData),
-             dispersion=dispersion(seqData))
+fit.edgeR <- glmFit(counts, X, dispersion=dispersion(seqData))
 @
 
 \item Using edgeR's function to do hypothesis testing on the second parameter of the model (gender).

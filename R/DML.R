@@ -217,7 +217,7 @@ compute.waldStat.noSmooth <- function(estprob1, estprob2, n1, n2, phi1, phi2) {
     vv[vv<1e-5] <- 1e-5
     se <- sqrt(vv)
     stat <- dif/se
-    pval <- 2 * (1 - pnorm(abs(stat))) ## p-value for hypothesis testing
+    pval <- 2 * pnorm(-abs(stat)) ## p-value for hypothesis testing
     fdr <- p.adjust(pval, method="fdr")
 
     data.frame(mu1=estprob1, mu2=estprob2, diff=dif, diff.se=se, stat=stat,
@@ -248,7 +248,7 @@ compute.waldStat.Smooth <- function(estprob1, estprob2, n1, n2, phi1, phi2, smoo
 
     se <- sqrt(vv)
     stat <- dif/se
-    pval <- 2 * (1 - pnorm(abs(stat))) ## p-value for hypothesis testing
+    pval <- 2 * pnorm(-abs(stat)) ## p-value for hypothesis testing
     fdr <- p.adjust(pval, method="fdr")
 
     data.frame(mu1=estprob1, mu2=estprob2, diff=dif, diff.se=se, stat=stat,
