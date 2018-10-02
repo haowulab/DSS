@@ -103,7 +103,9 @@ head(dmls)
 data(RRBS)
 DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell+case:cell)
 DMLtest.cell = DMLtest.multiFactor(DMLfit, coef="cellrN")
-dml = callDMR(DMLtest.cell, p.threshold=0.05)
+dml = callDML(DMLtest.cell, p.threshold=0.05) ## this produce a warning
+dml = callDML(DMLtest.cell, thresh=0, p.threshold=0.05) ## no warning
+
 head(dml)
 
 }

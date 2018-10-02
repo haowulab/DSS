@@ -337,6 +337,11 @@ compute.var.Smooth.old <- function(estprob1, n1, phi1, smoothing.span, allchr, a
 ################################################
 callDML <- function(DMLresult, delta=0.1, p.threshold=1e-5) {
 
+    if(class(DMLresult)[2] == "DMLtest.multiFactor" & delta>0) {
+        warning("'delta' cannot be specified for multiple-factor test results. Set delta=0 and proceed ...\n")
+        delta = 0
+    }
+
     ## obtain posterior probability that the differnce of two means are greater than a threshold
     if( delta > 0 ) {
         p1 <- pnorm(DMLresult$diff-delta, sd=DMLresult$diff.se) ## Pr(delta.mu > delta)

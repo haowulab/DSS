@@ -112,6 +112,17 @@ test3 = DMLtest.multiFactor(DMLfit, term="case")
 Contrast = matrix(c(0,1,0), ncol=1)
 test4 = DMLtest.multiFactor(DMLfit, Contrast=Contrast)
 cor(cbind(test1$pval, test2$pval, test3$pval, test4$pval))
+
+
+## note the different usage of term and coef.
+## 'term' has to be in the formula, whereas 'coef' has to be in colnames
+## of the design matrix.
+DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell+case:cell)
+DMLtest.cell = DMLtest.multiFactor(DMLfit, coef="cellrN")
+DMLtest.cell = DMLtest.multiFactor(DMLfit, term="cell")
+DMLtest.int = DMLtest.multiFactor(DMLfit, coef="caseSLE:cellrN")
+DMLtest.int = DMLtest.multiFactor(DMLfit, term="case:cell")
+
 }
 }
 

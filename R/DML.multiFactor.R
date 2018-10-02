@@ -254,22 +254,19 @@ DMLtest.multiFactor.Contrast <- function(DMLfit, Contrast) {
 ## Input term can be a vector (testing multiple terms)
 ##############################################################
 makeContrast <- function(fit, term) {
-    formula.terms = terms(fit$formula)
-    ix = match(term, attr(formula.terms, "term.labels"))
-    if( length(ix) == 0 )
-        stop("term(s) to be tested can't be found in the formula.\n")
-
+    formula.terms = attr(terms(fit$formula), "term.labels")
+    ix = match(term, formula.terms)
     if( any(is.na(ix)) )
-        warning("Some term(s) to be tested can't be found in the formula. Will proceed to test the locatable terms.\n")
+        stop("Some term(s) to be tested can't be found in the formula.\n")
 
     ## make contrast matrix. All columns in the design matrix related to
     ## the provided term (including interactions) should be tested.
     allcolnam = colnames(fit$X)
     ix.term = NULL
+    ixcol = attr(fit$X, "assign")
     for( t in term ) {
-        ix.term = c(ix.term, grep(t, allcolnam))
-        ## using grep is dangerous is two terms has similar names, such as aa and aaa.
-        ## I need to find a better way for this
+        iii = which(formula.terms == t)
+        ix.term = c( ix.term, which(ixcol==iii) )
     }
 
     ## make matrix.
