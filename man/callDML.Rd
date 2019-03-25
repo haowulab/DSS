@@ -41,18 +41,12 @@ callDML(DMLresult, delta=0.1, p.threshold=1e-5)
   \item{diff}{Difference of mean methylations of two groups.}
   \item{diff.se}{Standard error of the methylation difference.}
   \item{stat}{Wald statistics.}
+  \item{phi1, phi2}{Estimated dispersions in two groups.}
   \item{pval}{P-values. This is obtained from normal distribution.}
   \item{fdr}{False discovery rate.}
-  \item{chr}{Chromosome number.}
-  \item{pos}{Genomic coordinates.}
-  \item{meanMethy1, meanMethy2}{Average methylation levels in two
-    conditions.}
-  \item{diff.Methy}{The difference in the methylation levels between two
-    conditions.}
-  
-  If delta>0, there is an extra column postprob.overThreshold
-  reprsenting the posterior probability of the difference in methylation
-  greater than delta.
+  \item{postprob.overThreshold}{The posterior probability of the
+	difference in methylation greater than delta. This columns is only
+	available when delta>0.}
 }
 
 \author{
