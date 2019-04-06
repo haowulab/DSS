@@ -41,6 +41,27 @@ makeBSseqData <- function(dat, sampleNames) {
     M <- as.matrix(alldat[,ix.X, drop=FALSE])
     Cov <- as.matrix(alldat[,ix.N, drop=FALSE])
     colnames(M) <- colnames(Cov) <- sampleNames
+
+    ## order CG sites according to positions
+    ## This doesn't seem to be necessary since merge will automatically order the sites.
+##     idx <- split(1:length(alldat$chr), alldat$chr)
+##     M.ordered <- M
+##     Cov.ordered <- Cov
+
+##     for( i in seq(along=idx) ) {
+##         thisidx = idx[[i]]
+##         thispos = alldat$pos[ thisidx ]
+##         dd = diff(thispos)
+##         if( min(dd)<0 ) { # not ordered
+##             warning( paste0("CG positions in chromosome ",  names(idx)[i], " is not ordered. Reorder CG sites.\n") )
+##             iii = order(thispos)
+##             M.ordered[thisidx, ] <- M[thisidx, ][iii,]
+##             Cov.ordered[thisidx, ] <- Cov[thisidx, ][iii,]
+##         }
+##     }
+
+##     result <- BSseq(chr=alldat$chr, pos=alldat$pos, M=M.ordered, Cov=Cov.ordered)
+
     result <- BSseq(chr=alldat$chr, pos=alldat$pos, M=M, Cov=Cov)
 
     result
@@ -287,12 +308,21 @@ dispersion.shrinkage.BSseq <- function(X, N, prior, estprob) {
     ix <- rowSums(N>0) > 0
     X2 <- X[ix, ,drop=FALSE]; N2 <- N[ix,,drop=FALSE]; estprob2 <- estprob[ix,,drop=FALSE]
     shrk.phi2 <- rep(0, nrow(X2))
+
+    ## setup a progress bar
+    nCG.pb = round(nrow(X2)/100)
+    pb <- txtProgressBar(style = 3)
     for(i in 1:nrow(X2)) {
+        ## print a progress bar
+        if((i %% nCG.pb) == 0)
+            setTxtProgressBar(pb, i/nrow(X2))
         ## I can keep the 0's with calculation. They don't make any difference.
         shrk.one=optimize(f=plik.logN, size=N2[i,], X=X2[i,], mu=estprob2[i,], m0=prior[1], tau=prior[2],
         interval=c(-5, log(0.99)),tol=1e-3)
         shrk.phi2[i]=exp(shrk.one$minimum)
     }
+    setTxtProgressBar(pb, 1)
+    cat("\n")
     shrk.phi[ix] <- shrk.phi2
 
     return(shrk.phi)

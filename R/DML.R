@@ -167,6 +167,7 @@ DMLtest.Smooth <- function(BS1, BS2, equal.disp, smoothing.span) {
     estprob1 <- compute.mean.Smooth(x1.wt, n1.wt, allchr, allpos, smoothing.span)
     estprob2 <- compute.mean.Smooth(x2.wt, n2.wt, allchr, allpos, smoothing.span)
 
+    cat("Computing test statistics ...\n")
     wald <- waldTest.DML(x1.wt, n1.wt, estprob1, phi1, x2.wt, n2.wt, estprob2, phi2,
                          smoothing=TRUE, smoothing.span, allchr=allchr, allpos=allpos)
 ##     wald <- waldTest.DML(x1, n1, estprob1, phi1, x2, n2, estprob2, phi2,
