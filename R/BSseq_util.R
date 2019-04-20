@@ -14,12 +14,10 @@ makeBSseqData <- function(dat, sampleNames) {
     if(any(alldat[,"N"] < alldat[,"X"], na.rm=TRUE))
         stop("Some methylation counts are greater than coverage.\n")
 
-
     ix.X <- which(colnames(alldat) == "X")
     ix.N <- which(colnames(alldat) == "N")
     colnames(alldat)[ix.X] <- "X1"
     colnames(alldat)[ix.N] <- "N1"
-
 
     if(n0 > 1) { ## multiple replicates, merge data
         for(i in 2:n0) {
@@ -43,26 +41,27 @@ makeBSseqData <- function(dat, sampleNames) {
     colnames(M) <- colnames(Cov) <- sampleNames
 
     ## order CG sites according to positions
-    ## This doesn't seem to be necessary since merge will automatically order the sites.
-##     idx <- split(1:length(alldat$chr), alldat$chr)
-##     M.ordered <- M
-##     Cov.ordered <- Cov
+    idx <- split(1:length(alldat$chr), alldat$chr)
+    M.ordered <- M
+    Cov.ordered <- Cov
+    pos.ordered <- alldat$pos
 
-##     for( i in seq(along=idx) ) {
-##         thisidx = idx[[i]]
-##         thispos = alldat$pos[ thisidx ]
-##         dd = diff(thispos)
-##         if( min(dd)<0 ) { # not ordered
-##             warning( paste0("CG positions in chromosome ",  names(idx)[i], " is not ordered. Reorder CG sites.\n") )
-##             iii = order(thispos)
-##             M.ordered[thisidx, ] <- M[thisidx, ][iii,]
-##             Cov.ordered[thisidx, ] <- Cov[thisidx, ][iii,]
-##         }
-##     }
+    for( i in seq(along=idx) ) {
+        thisidx = idx[[i]]
+        thispos = alldat$pos[ thisidx ]
+        dd = diff(thispos)
+        if( min(dd)<0 ) { # not ordered
+            warning( paste0("CG positions in chromosome ",  names(idx)[i], " is not ordered. Reorder CG sites.\n") )
+            iii = order(thispos)
+            M.ordered[thisidx, ] <- M[thisidx, ][iii,]
+            Cov.ordered[thisidx, ] <- Cov[thisidx, ][iii,]
+            pos.ordered[thisidx] <- alldat$pos[thisidx][iii]
+        }
+    }
 
-##     result <- BSseq(chr=alldat$chr, pos=alldat$pos, M=M.ordered, Cov=Cov.ordered)
+    result <- BSseq(chr=alldat$chr, pos=pos.ordered, M=M.ordered, Cov=Cov.ordered)
 
-    result <- BSseq(chr=alldat$chr, pos=alldat$pos, M=M, Cov=Cov)
+##    result <- BSseq(chr=alldat$chr, pos=alldat$pos, M=M, Cov=Cov)
 
     result
 }
