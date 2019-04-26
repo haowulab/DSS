@@ -15,5 +15,7 @@ Description: DSS is an R library performing differntial analysis for
         for estimating the dispersion parameter from Gamma-Poisson or
         Beta-Binomial distributions.
 License: GPL
-biocViews: ImmunoOncology, Sequencing, RNASeq, ChIPSeq, DNAMethylation,GeneExpression,
+VignetteBuilder: knitr
+Suggests: BiocStyle, knitr, rmarkdown
+biocViews: Sequencing, RNASeq, DNAMethylation,GeneExpression,
         DifferentialExpression,DifferentialMethylation
