@@ -85,51 +85,25 @@ and [@DML-general] for differential methylation for general experimental design.
 * For differential methylation in BS-seq under general experimental design, cite @DML-general.
 
 
-#Using ``DSS`` for differential expression analysis
+#Using DSS for RNA-seq differential expression analysis
 
 ##Input data preparation
 DSS requires a count table (a matrix of integers) for gene expression values
 (rows are for genes and columns are for samples).
 This is different from the isoform expression based analysis such as in cufflink/cuffdiff,
 where the gene expressions are represented as non-integers values.
+
 There are a number of ways to obtain the count table from raw sequencing data (fastq file).
-Here we provide some example codes using several Bioconductor packages
-(the codes require installation of ``GenomicFeatures``, ``Rsamtools``,
-and ``GenomicRanges`` packages).
-
-- Sequence alignment. There are several RNA-seq aligner, for example, **tophat**
-or  **STAR**. Assume the alignment result is saved in a BAM file ``data.bam``.
-
-- Choose a gene annotation. ``GenomicFeatures`` package provides a convenient way to
-access different gene annotations. For example, if one wants to use RefSeq annotation for human
-genome build hg19, one can use following codes:
-
-```{r eval=FALSE}
-    library(GenomicFeatures)
-    txdb = makeTranscriptDbFromUCSC(genom="hg19",tablename="refGene")
-    genes = genes(txdb)
-```
-
-- Obtain count table based on the alignment results and gene annotation.
-This can be done in several steps. First read in the BAM file using the ```Rsamtools``` package:
-```{r eval=FALSE}
-    bam = scanBam("data.bam")
-```
-
-- Next, create ``GRanges`` object for the aligned sequence reads.
-```{r eval=FALSE}
-    IRange.reads = GRanges(seqnames=Rle(bam$rname), ranges=IRanges(bam$pos, width=bam$qwidth))
-```
-
-- Finally, use the {\tt countOverlaps} function in {\tt GenomicRanges} function to obtain the
-read counts overlap each gene.
-```{r eval=FALSE}
-    counts = countOverlaps(genes, IRange.reads)
-```
-
-There are other ways to obtain the counts, for example, using ``RSEM``, 
-or Bioconductor packages like ``QuasR`` or ``easyRNASeq``. 
-Please refer to the package vignettes for more details.
+Aligners such as [STAR](https://github.com/alexdobin/STAR) automatically output a count table. 
+Several Bioconductor packages serve this purpose, 
+for example, [Rsubread](http://bioconductor.org/packages/release/bioc/html/Rsubread.html), 
+[QuasR](http://bioconductor.org/packages/release/bioc/html/QuasR.html), 
+and [easyRNASeq](http://bioconductor.org/packages/release/bioc/html/easyRNASeq.html). 
+Other tools like 
+[Salmon](http://combine-lab.github.io/salmon/), 
+[Kallisto](https://pachterlab.github.io/kallisto/about.html), 
+or [RSEM](http://deweylab.github.io/RSEM/) can also be used. 
+Please refer to the package manuals for more details.
 
 ## Single factor experiment
 
@@ -238,7 +212,7 @@ head(lrt.edgeR$table)
 ```
 
 
-# Using ``DSS`` for differential methylation analysis
+# Using DSS for BS-seq differential methylation analysis
 
 ## Overview
 To detect differential methylation, statistical tests are conducted at each CpG site,
@@ -269,7 +243,8 @@ Model fitting is performed on transformed data with generalized least
 square method, which achieves much improved computational performance compared
 with methods based on generalized linear model.
 
-DSS depends on ``bsseq`` Bioconductor package, which has neat definition of
+DSS depends on [bsseq](http://bioconductor.org/packages/release/bioc/html/bsseq.html) 
+Bioconductor package, which has neat definition of
 data structures and many useful utility functions. In order to use the DM detection functionalities,
 ``bsseq`` needs to be pre-installed.
 
@@ -290,9 +265,12 @@ chr18   3031065 48      24
 ```
 
 One can follow below steps to obtain such data from raw sequence file (fastq file),
-using ``bismark`` (version 0.10.0, commands for newer versions could be different)
+using [bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) 
+(version 0.10.0, commands for newer versions could be different)
 for BS-seq alignment and count extraction. These steps require installation
-of ``bowtie`` or ``bowtie2``, ``bismark``, and the fasta file for reference genome.
+of [bowtie](http://bowtie-bio.sourceforge.net/index.shtml) 
+or [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml), 
+``bismark``, and the fasta file for reference genome.
 
 1. Prepare Bisulfite reference genome. This can be done using the
 ``bismark_genome_preparation`` function (details in bismark manual). Example command is:
@@ -523,7 +501,7 @@ RRBS
 design
 ```
 
-**Stepp 2**. Fit a linear model using ``DMLfit.multiFactor function, include
+**Stepp 2**. Fit a linear model using ``DMLfit.multiFactor`` function, include
 case, cell, and case by cell interaction. Similar to in a multiple regression, 
 the model only needs to be fit once, and then the parameters can be tested 
 based on the model fitting results.
