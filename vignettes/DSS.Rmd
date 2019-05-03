@@ -79,6 +79,7 @@ please read [@DE] for differential expression from RNA-seq,
 and [@DML-general] for differential methylation for general experimental design.
 
 ## Citation
+
 * For differential expression in RNA-seq, cite @DE. 
 * For general differential methylation in BS-seq, cite @DML. 
 * For differential methylation in BS-seq when there's no biological replicate, cite @DMR1.
@@ -88,6 +89,7 @@ and [@DML-general] for differential methylation for general experimental design.
 #Using DSS for RNA-seq differential expression analysis
 
 ##Input data preparation
+
 DSS requires a count table (a matrix of integers) for gene expression values
 (rows are for genes and columns are for samples).
 This is different from the isoform expression based analysis such as in cufflink/cuffdiff,
@@ -215,6 +217,7 @@ head(lrt.edgeR$table)
 # Using DSS for BS-seq differential methylation analysis
 
 ## Overview
+
 To detect differential methylation, statistical tests are conducted at each CpG site,
 and then the differential methylation loci (DML) or differential methylation regions (DMR)
 are called based on user specified threshold.
@@ -249,6 +252,7 @@ data structures and many useful utility functions. In order to use the DM detect
 ``bsseq`` needs to be pre-installed.
 
 ## Input data preparation
+
 DSS requires data from each BS-seq experiment to be summarized
 into following information for each CG position:
 chromosome number, genomic coordinate, total number of reads,
@@ -417,6 +421,7 @@ knitr::include_graphics("aDMR.pdf")
 ```
 
 ## DML/DMR detection from general experimental design
+
 In DSS, BS-seq data from a general experimental design (such as crossed experiment,
 or experiment with covariates) is modeled through a generalized linear model framework.
 We use **arcsine** link function instead of the typical logit link for it better deals with data
@@ -427,6 +432,7 @@ of count data distribution and transformation.
 
 
 ### Hypothesis testing in general experimental design
+
 In a general design, the data are modeled through a multiple regression framework,
 thus there are several regression coefficients. In contrast, there is only one parameter
 in two-group comparison which is the difference between two groups.
@@ -567,6 +573,7 @@ differences. So when the input DMLresult is from {\tt DMLtest.multiFactor},
 {\tt delta} cannot be specified.
 
 ### More flexible way to construct a hypothesis test
+
  Following 4 tests should produce the same results,  since 'case' only has two levels.
  However the p-values from F-tests (using term or Contrast) are
  slightly different, due to normal approximation in Wald test.
@@ -664,8 +671,10 @@ with batch as a covariate in the model.
 A. No. But these are on our future development plan. 
 
 # Session Info
+
 ```{r}
 sessionInfo()
 ```
+
 # References
 
