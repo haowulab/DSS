@@ -291,7 +291,7 @@ est.prior.BSseq.logN <- function(X, N) {
 ## The shrinakge is done in log scale. So data will be shrink to the
 ## logarithmic means.
 ########################################################################
-dispersion.shrinkage.BSseq <- function(X, N, prior, estprob, ncores) {
+dispersion.shrinkage.BSseq <- function(X, N, prior, estprob, BPPARAM) {
     ## penalized likelihood function
     plik.logN <- function(size, X,mu,m0,tau,phi)
         -(sum(dbb(size, X, mu, exp(phi))) + dnorm(phi, mean=m0, sd=tau, log=TRUE))
@@ -310,8 +310,8 @@ dispersion.shrinkage.BSseq <- function(X, N, prior, estprob, ncores) {
 
     ## setup a progress bar
     nCG.pb = round(nrow(X2)/100)
-    pb <- txtProgressBar(style = 3)
-    if(ncores == 1) { ## use single core
+    if(bpworkers(BPPARAM) == 1) { ## use single core, no parallelism
+        pb <- txtProgressBar(style = 3)
         for(i in 1:nrow(X2)) {
             ## print a progress bar
             if((i %% nCG.pb) == 0)
@@ -323,21 +323,39 @@ dispersion.shrinkage.BSseq <- function(X, N, prior, estprob, ncores) {
         }
         setTxtProgressBar(pb, 1)
         cat("\n")
-    } else if (ncores>1) { ## use multiple cores
-        registerDoParallel(ncores)
-        shrk.phi2 = foreach ( i=1:nrow(X2), .combine=c )  %dopar% {
-            ## print a progress bar
-            if((i %% nCG.pb) == 0)
-                setTxtProgressBar(pb, i/nrow(X2))
-            ## I can keep the 0's with calculation. They don't make any difference.
-            shrk.one = optimize(f=plik.logN, size=N2[i,], X=X2[i,], mu=estprob2[i,], m0=prior[1], tau=prior[2],
-            interval = c(-5, log(0.99)),tol=1e-3)
+    } else  { ## use multiple cores.
+        suppressPackageStartupMessages({
+            requireNamespace("BiocParallel")
+        })
+        foo <- function(i) {
+            shrk.one <- optimize(f=plik.logN, size=N2[i,], X=X2[i,], mu=estprob2[i,], m0=prior[1], tau=prior[2],
+                                 interval=c(-5, log(0.99)),tol=1e-3)
             exp(shrk.one$minimum)
         }
-        stopImplicitCluster()
-        setTxtProgressBar(pb, 1)
-        cat("\n")
+        ## Set progress bar
+        BPPARAM$progressbar = TRUE
+        shrk.phi2 <- bptry(bplapply(1:nrow(X2), foo, BPPARAM = BPPARAM))
+        if (!all(bpok(shrk.phi2))) {
+            stop("Shrinkage estimator in parallel computing encountered errors: ",
+                 sum(!bpok(shrk.phi2)), " of ", length(shrk.phi2),
+                 " smoothing tasks failed.")
+        } else {
+            shrk.phi2 <- unlist(shrk.phi2)
+        }
     }
+
+##         shrk.phi2 = foreach ( i=1:nrow(X2), .combine=c )  %dopar% {
+##             ## print a progress bar
+##             if((i %% nCG.pb) == 0)
+##                 setTxtProgressBar(pb, i/nrow(X2))
+##             ## I can keep the 0's with calculation. They don't make any difference.
+##             shrk.one = optimize(f=plik.logN, size=N2[i,], X=X2[i,], mu=estprob2[i,], m0=prior[1], tau=prior[2],
+##             interval = c(-5, log(0.99)),tol=1e-3)
+##             exp(shrk.one$minimum)
+##         }
+##         stopImplicitCluster()
+##         setTxtProgressBar(pb, 1)
+##         cat("\n")
 
     shrk.phi[ix] <- shrk.phi2
 

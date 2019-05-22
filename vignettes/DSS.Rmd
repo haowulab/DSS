@@ -86,9 +86,9 @@ and [@DML-general] for differential methylation for general experimental design.
 * For differential methylation in BS-seq under general experimental design, cite @DML-general.
 
 
-#Using DSS for RNA-seq differential expression analysis
+# Using DSS for RNA-seq differential expression analysis
 
-##Input data preparation
+## Input data preparation
 
 DSS requires a count table (a matrix of integers) for gene expression values
 (rows are for genes and columns are for samples).
@@ -420,6 +420,22 @@ The example data are from RRBS experiment so the DMRs are much shorter.**
 knitr::include_graphics("aDMR.pdf")
 ```
 
+### Parallel computing for DML/DMR detection from two-group comparison
+
+We now implement parallel computing for two-group DML test to speed up the computation. 
+The parallelism is achieved by specifying the `BPPARAM` parameter in `DMLtest` function,  
+through the functionalities provided in  `r Biocpkg("BiocParallel")` package. 
+Please see the help for `DMLtest` function for more description and example codes. 
+To know more about the `r Biocpkg("BiocParallel")`, please read its documentations.
+
+We did some simple tests. The figure below shows the time spent in `DMLtest` function,
+for different numbers of CpG sites in the data and using different number of cores. 
+It shows significant improvements using multiple cores. 
+
+```{r fig2, echo=FALSE, fig.cap="Parallelization in DML calling", out.width = '100%'}
+knitr::include_graphics("parallel.pdf")
+```
+
 ## DML/DMR detection from general experimental design
 
 In DSS, BS-seq data from a general experimental design (such as crossed experiment,
@@ -594,6 +610,7 @@ The model fitting and hypothesis test procedures are computationally very effici
 For a typical RRBS dataset with 4 million CpG sites,
 it usually takes less than half hour. In comparison, other similar software such as RADMeth or BiSeq
 takes at least 10 times longer.
+
 
 
 # Frequently Asked Questions

@@ -11,7 +11,8 @@
 }
 
 \usage{
-DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE, smoothing.span = 500) 
+DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE,
+        smoothing.span = 500, BPPARAM = bpparam()) 
 }
 
 \arguments{
@@ -28,7 +29,9 @@ DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE, smoothing.
 %     method. This will be ignored if smoothing=FALSE.}
   \item{smoothing.span}{The size of smoothing window, in
     basepairs. Default is 500.}
-%   \item{...}{Other parameters for BSmooth function in "bsseq" package.}
+  \item{BPPARAM}{An optional BiocParallelParam instance determining the
+	parallel back-end to be used. See sections 'Parallelization' for
+	details.}
 }
 
 \details{
@@ -61,6 +64,24 @@ DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE, smoothing.
   to estimate dispersions via a shrinkage estimator. This smoothing
   procedure uses data from neighboring CpG sites as "pseudo-replicate"
   for estimating biological variance.}
+
+\section{Parallelization}{
+  The shrinkage estimation for dispersion is the most computational
+  component in DML testing. We now uses the 'BiocParallel' package to
+  implement parallelization, which provides significant computational
+  improvements.
+
+  All parallelization options are controlled via the 'BPPARAM'
+  argument. BiocParallel provides params for 
+  SerialParam (Unix, Mac, Windows),
+  MulticoreParam (Unix and Mac), SnowParam (Unix, Mac, and
+  Windows, limited to single-machine clusters), and
+  BatchJobsParam (Unix, Mac, Windows). By default, 'BPPARAM' takes value
+  from 'bpparam()'. Example section provides some codes to generate
+  user-specified BPPARAM. For more details, please  read the
+  'BiocParallel' documentation.}
+  
+  
 
 \value{A data frame with each row corresponding to a CpG site. Rows are
   sorted by chromosome number and genomic coordinates. The columns
@@ -119,7 +140,23 @@ data(BS.cancer.ex)
 ## take a small portion of data and test
 BSobj <- BS.cancer.ex[10000:15000,]
 dmlTest <- DMLtest(BSobj, group1=c("C1", "C2", "C3"), group2=c("N1","N2","N3"), 
-   smoothing=TRUE, smoothing.span=500)
+                   smoothing=TRUE, smoothing.span=500)
 head(dmlTest)
+
+## Examples for Parallelization
+## use single core - this has not parallelization
+single = MulticoreParam(workers=1, progressbar=TRUE)
+dmlTest <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"),
+                   BPPARAM=single)
+
+## use 4 cores
+mParam = MulticoreParam(workers=4, progressbar=TRUE)
+dmlTest <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"),
+                   BPPARAM=mParam)
+
+## use SnowParam, this will work on Windows
+snow <- SnowParam(workers = numCores)
+dmlTest <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"),
+                   BPPARAM=snow)
 }
 }

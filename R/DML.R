@@ -8,17 +8,7 @@
 ## wrapper function for DML test
 ######################################
 DMLtest <- function(BSobj, group1, group2, equal.disp=FALSE, smoothing=FALSE,
-                    smoothing.span=500, ncores=1) {
-
-    ## check number of cores
-    if(ncores > 1) {
-        require(foreach)
-        require(doParallel)
-        if(ncores > detectCores()) {
-            msg = paste0("Maximum number of cores detected is ", detectCores(), ", ncores cannot exceed this number.\n")
-            stop(msg)
-        }
-    }
+                    smoothing.span=500, BPPARAM=bpparam()) {
 
     ## grab two group data
     tmp <- getBSseqIndex(sampleNames(BSobj), group1, group2)
@@ -47,9 +37,9 @@ DMLtest <- function(BSobj, group1, group2, equal.disp=FALSE, smoothing=FALSE,
     }
 
     if(!smoothing) { ## no smoothing.
-        dmls <- DMLtest.noSmooth(BS1, BS2, equal.disp, ncores)
+        dmls <- DMLtest.noSmooth(BS1, BS2, equal.disp, BPPARAM)
     } else { ## smoothing version
-        dmls <- DMLtest.Smooth(BS1, BS2, equal.disp, smoothing.span, ncores)
+        dmls <- DMLtest.Smooth(BS1, BS2, equal.disp, smoothing.span, BPPARAM)
     }
 
     class(dmls)[2] = "DMLtest"
@@ -94,7 +84,7 @@ getBSseqIndex <- function(sName, group1, group2) {
 ######################################
 ## test DML without smoothing
 ######################################
-DMLtest.noSmooth <- function(BS1, BS2, equal.disp, ncores) {
+DMLtest.noSmooth <- function(BS1, BS2, equal.disp, BPPARAM) {
     ## grab counts
     x1 <- as.array(getCoverage(BS1, type="M"))
     n1 <- as.array(getCoverage(BS1, type="Cov"))
@@ -113,8 +103,8 @@ DMLtest.noSmooth <- function(BS1, BS2, equal.disp, ncores) {
     if(equal.disp | nreps1==1 | nreps2==1) {
         phi1 <- phi2 <- est.dispersion.BSseq(cbind(x1,x2), cbind(n1,n2), cbind(estprob1, estprob2), ncores)
     } else {
-        phi1 <- est.dispersion.BSseq(x1, n1, estprob1, ncores)
-        phi2 <- est.dispersion.BSseq(x2, n2, estprob2, ncores)
+        phi1 <- est.dispersion.BSseq(x1, n1, estprob1, BPPARAM)
+        phi2 <- est.dispersion.BSseq(x2, n2, estprob2, BPPARAM)
     }
 
     ## weight the counts
@@ -142,7 +132,7 @@ DMLtest.noSmooth <- function(BS1, BS2, equal.disp, ncores) {
 ######################################
 ## test DML with smoothing
 ######################################
-DMLtest.Smooth <- function(BS1, BS2, equal.disp, smoothing.span, ncores) {
+DMLtest.Smooth <- function(BS1, BS2, equal.disp, smoothing.span, BPPARAM) {
     ## grab counts
     x1 <- as.array(getCoverage(BS1, type="M"))
     n1 <- as.array(getCoverage(BS1, type="Cov"))
@@ -161,10 +151,10 @@ DMLtest.Smooth <- function(BS1, BS2, equal.disp, smoothing.span, ncores) {
     ## estimate priors from counts
     cat("Estimating dispersion for each CpG site, this will take a while ...\n")
     if(equal.disp) {
-        phi1 <- phi2 <- est.dispersion.BSseq(cbind(x1,x2), cbind(n1,n2), cbind(estprob1, estprob2), ncores)
+        phi1 <- phi2 <- est.dispersion.BSseq(cbind(x1,x2), cbind(n1,n2), cbind(estprob1, estprob2), BPPARAM)
     } else {
-        phi1 <- est.dispersion.BSseq(x1, n1, estprob1, ncores)
-        phi2 <- est.dispersion.BSseq(x2, n2, estprob2, ncores)
+        phi1 <- est.dispersion.BSseq(x1, n1, estprob1, BPPARAM)
+        phi2 <- est.dispersion.BSseq(x2, n2, estprob2, BPPARAM)
     }
 
     ## update counts - weight by dispersion
