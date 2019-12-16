@@ -80,7 +80,7 @@ dmls <- callDML(dmlTest)
 head(dmls)
 
 ## call DML with a threshold
-dmls2 <- callDML(dmlTest, delta=0.2)
+dmls2 <- callDML(dmlTest, delta=0.1)
 head(dmls2)
 
 ## For whole-genome BS-seq data, perform DML test with smoothing

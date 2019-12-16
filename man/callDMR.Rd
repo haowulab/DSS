@@ -117,7 +117,7 @@ dmrs <- callDMR(dmlTest)
 head(dmrs)
 
 ## or one can specify a threshold for difference in methylation level
-dmrs2 <- callDMR(dmlTest, delta=0.2)
+dmrs2 <- callDMR(dmlTest, delta=0.1)
 head(dmrs2)
 
 ## visualize one DMR
