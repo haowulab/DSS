@@ -237,9 +237,9 @@ smooth.collapse <- function(BS, method, ws, ...) {
 ########################################################################
 ## estimate dispersion for BS-seq data, given means
 ########################################################################
-est.dispersion.BSseq <- function(X, N, estprob, ncores) {
+est.dispersion.BSseq <- function(X, N, estprob, BPPARAM) {
     prior <- est.prior.BSseq.logN(X, N)
-    dispersion.shrinkage.BSseq(X, N, prior, estprob, ncores)
+    dispersion.shrinkage.BSseq(X, N, prior, estprob, BPPARAM)
 }
 
 ########################################################################

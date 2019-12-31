@@ -101,7 +101,7 @@ DMLtest.noSmooth <- function(BS1, BS2, equal.disp, BPPARAM) {
     ## - this part is slow. Could be computed parallely. Will implement later.
     cat("Estimating dispersion for each CpG site, this will take a while ...\n")
     if(equal.disp | nreps1==1 | nreps2==1) {
-        phi1 <- phi2 <- est.dispersion.BSseq(cbind(x1,x2), cbind(n1,n2), cbind(estprob1, estprob2), ncores)
+        phi1 <- phi2 <- est.dispersion.BSseq(cbind(x1,x2), cbind(n1,n2), cbind(estprob1, estprob2), BPPARAM)
     } else {
         phi1 <- est.dispersion.BSseq(x1, n1, estprob1, BPPARAM)
         phi2 <- est.dispersion.BSseq(x2, n2, estprob2, BPPARAM)
