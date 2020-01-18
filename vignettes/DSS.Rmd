@@ -416,9 +416,7 @@ The result figure looks like the following.
 **Note that the figure below is not generated from the above example.
 The example data are from RRBS experiment so the DMRs are much shorter.**
 
-```{r fig1, echo=FALSE, fig.cap="An example DMR", out.width = '100%'}
-knitr::include_graphics("aDMR.pdf")
-```
+![](aDMR.png)
 
 ### Parallel computing for DML/DMR detection from two-group comparison
 
@@ -432,9 +430,7 @@ We did some simple tests. The figure below shows the time spent in `DMLtest` fun
 for different numbers of CpG sites in the data and using different number of cores. 
 It shows significant improvements using multiple cores. 
 
-```{r fig2, echo=FALSE, fig.cap="Parallelization in DML calling", out.width = '100%'}
-knitr::include_graphics("parallel.pdf")
-```
+![](parallel.png)
 
 ## DML/DMR detection from general experimental design
 
