@@ -57,6 +57,7 @@ DMLfit.multiFactor(BSobj, design, formula, smoothing=FALSE, smoothing.span=500)
 }
 
 \examples{
+\dontrun{
 data(RRBS)
 ## model fitting
 DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell+case:cell)
@@ -71,5 +72,6 @@ DMLtest.cell = DMLtest.multiFactor(DMLfit, coef=3)
 par(mfrow=c(1,2))
 hist(DMLtest.cell$stat, 100, main="test statistics")
 hist(DMLtest.cell$pvals, 100, main="P values")
+}
 }
 
