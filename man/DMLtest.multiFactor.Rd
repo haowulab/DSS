@@ -109,7 +109,7 @@ DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell)
 test1 = DMLtest.multiFactor(DMLfit, coef=2)
 test2 = DMLtest.multiFactor(DMLfit, coef="caseSLE")
 test3 = DMLtest.multiFactor(DMLfit, term="case")
-Contrast = matrix(c(0,1,0), ncol=1)
+Contrast = matrix(c(0,1,0,0), ncol=1)
 test4 = DMLtest.multiFactor(DMLfit, Contrast=Contrast)
 cor(cbind(test1$pval, test2$pval, test3$pval, test4$pval))
 
