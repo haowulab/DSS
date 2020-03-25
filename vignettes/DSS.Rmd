@@ -607,6 +607,31 @@ For a typical RRBS dataset with 4 million CpG sites,
 it usually takes less than half hour. In comparison, other similar software such as RADMeth or BiSeq
 takes at least 10 times longer.
 
+### For paired design
+DSS can handle paired design using a **fixed effect model**. 
+To be specific, assuming you have a design with 3 control and 3 treated samples,
+and the control and treated samples are paired. 
+The design data frame will be constructed as the following.
+**It's important to make the pair information as factor**. 
+
+```{r}
+Treatment = factor(rep(c("Control","Treated"), 3))
+pair = factor( rep(1:3, each=2) )
+design = data.frame(Treatment, pair)
+design
+```
+
+To fit the model, "pair" variable needs to be included in the formula.
+Then the  treatment effect can be tested adjusted for pairing: 
+```{r, eval=FALSE}
+DMLfit = DMLfit.multiFactor(BSobj, design, formula = ~ Treatment + pair)
+dmlTest = DMLtest.multiFactor(DMLfit, term="Treatment")
+```
+
+Moreover, datasets with repeated measurements (such as longituinal data)
+can be analyzed using similar fashion under fixed effect model. 
+We acknowledge that mixed effect models are potentially more efficient, 
+but we have not implemented mixed model in DSS. 
 
 
 # Frequently Asked Questions
@@ -679,9 +704,11 @@ to reduce the memory usage. But it makes the computation significantly slower so
 A: I think the best strategy will be using the multifactor functions
 with batch as a covariate in the model. 
 
-**Q: Does DSS work for longitudinal or paired data?**
+
+**Q: Does DSS work for survival data?**
 
 A. No. But these are on our future development plan. 
+
 
 # Session Info
 
