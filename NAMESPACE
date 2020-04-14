@@ -1,11 +1,14 @@
+useDynLib(DSS)
+
 import(methods)
 import(utils)
 import(graphics)
 import(stats)
+importFrom(splines, ns)
 import(Biobase)
 import(BiocParallel)
 import(bsseq)
-useDynLib(DSS)
+
 exportClasses("SeqCountSet")
 exportMethods(
               normalizationFactor, "normalizationFactor<-",

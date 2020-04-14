@@ -3,8 +3,8 @@ Title: Dispersion shrinkage for sequencing data
 Version: 2.35.1
 Date: 2020-04-13
 Author: Hao Wu<hao.wu@emory.edu>, Hao Feng<hxf155@case.edu>
-Depends: R (>= 3.3), methods, Biobase, BiocParallel, bsseq, splines
-Imports: utils, graphics, stats, DelayedArray
+Depends: R (>= 3.3), methods, Biobase, BiocParallel, bsseq
+Imports: utils, graphics, stats, splines, DelayedArray
 Maintainer: Hao Wu <hao.wu@emory.edu>, Hao Feng <hxf155@case.edu>
 Description: DSS is an R library performing differntial analysis for
         count-based sequencing data. It detectes differentially
