@@ -107,6 +107,7 @@ DMLtest.noSmooth <- function(BS1, BS2, equal.disp, BPPARAM) {
         phi2 <- est.dispersion.BSseq(x2, n2, estprob2, BPPARAM)
     }
 
+
     ## weight the counts
     wt1 <- 1 / (1+(n1-1)*phi1);    wt1 <- wt1 / mean(wt1)
     wt2 <- 1 / (1+(n2-1)*phi2);    wt2 <- wt2 / mean(wt2)
