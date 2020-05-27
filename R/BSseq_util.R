@@ -324,9 +324,6 @@ dispersion.shrinkage.BSseq <- function(X, N, prior, estprob, BPPARAM) {
         setTxtProgressBar(pb, 1)
         cat("\n")
     } else  { ## use multiple cores.
-        suppressPackageStartupMessages({
-            requireNamespace("BiocParallel")
-        })
         foo <- function(i) {
             shrk.one <- optimize(f=plik.logN, size=N2[i,], X=X2[i,], mu=estprob2[i,], m0=prior[1], tau=prior[2],
                                  interval=c(-5, log(0.99)),tol=1e-3)
