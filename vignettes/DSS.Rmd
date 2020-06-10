@@ -327,10 +327,11 @@ BSobj
 This function basically performs following steps: (1) estimate mean methylation levels
 for all CpG site; (2) estimate dispersions at each CpG sites; (3) conduct Wald test.
 For the first step, there's an option for smoothing or not.  Because the methylation levels
-show strong spatial correlations, smoothing can help obtain better estimates
-of mean methylation when the CpG sites are dense in the data
+show strong spatial correlations, smoothing can often help obtain better estimates
+of mean methylation.
+<!-- when the CpG sites are dense in the data
 (such as from the whole-genome BS-seq). However for data with sparse CpG,
-such as from RRBS or hydroxyl-methylation, smoothing is not recommended.
+such as from RRBS or hydroxymethylation, smoothing is not recommended. -->
 
 To perform DML test without smoothing, do:
 ```{r, results=FALSE}
@@ -344,12 +345,18 @@ dmlTest.sm = DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"),
                      smoothing=TRUE)
 ```
 
-User has the option to smooth the methylation levels or not. For WGBS data, smoothing is recommended
-so that information from nearby CpG sites can be combined to improve the estimation of methylation levels.
+User has the option to smooth the methylation levels or not. 
 A simple moving average algorithm is implemented for smoothing.
-In RRBS since the CpG coverage is sparse, smoothing might not alter the results much.
+For WGBS data, smoothing is always recommended
+so that information from nearby CpG sites can be combined to improve the estimation of methylation levels.
+For data with sparse CpG coverage such as RRBS or hydroxymethylation, 
+smoothing might not alter the results much, but is still recommended. 
+In RRBS, CpG sites are likely to be clustered locally within small genomic regions, 
+so smoothing can potentially help the methylation estimation.
+
 If smoothing is requested, smoothing span is an important parameter which has non-trivial
-impact on DMR calling. We use 500 bp as default, and think that it performs well in real data tests.
+impact on DMR calling. We use 500 bp as default, because it performs well in real data tests
+according to our experience.
 
 
 **Step 3**. With the test results, one can call DML by using ``callDML`` function.
