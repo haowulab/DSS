@@ -41,9 +41,10 @@ DMLfit.multiFactor(BSobj, design, formula, smoothing=FALSE, smoothing.span=500)
   \item{formula}{The input formula for the model.}
   \item{X}{The design matrix used in regression. It is created based on
   design and formula.}
-  \item{fit}{The model fitting results. This is a list itself, with two
+  \item{fit}{The model fitting results. This is a list itself, with three
   components: 'beta' - the estimated coefficients; 'var.beta' - estimated
-  variance/covariance matrices for beta. Note that var.beta for a CpG
+  variance/covariance matrices for beta. 'phi' - estimated beta-binomial
+  dispersion parameters.  Note that var.beta for a CpG
   site should be a ncol(X) x ncol(X) matrix, but is flattend to a vector
   so that the matrices for all CpG sites can be saved as a matrix.}
 }

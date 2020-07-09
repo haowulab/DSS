@@ -57,6 +57,7 @@ DMLfit.multiFactor.engine <- function(Y0, N0, X0, Z0) {
     ## loop over CpG sites
     beta = matrix(NA, nrow=C, ncol=p)
     var.beta = matrix(NA, nrow=C, ncol=p*p)
+    phi = numeric(C)
 
     cat("Fitting DML model for CpG site: ")
     for( i in 1:C ) {
@@ -68,9 +69,10 @@ DMLfit.multiFactor.engine <- function(Y0, N0, X0, Z0) {
         ## save point estimates and SE for this CpG
         beta[i,] = tmp$beta0
         var.beta[i,] = tmp$var.beta0
+        phi[i] = tmp$phi
     }
 
-    list(beta=beta, var.beta=var.beta)
+    list(beta=beta, var.beta=var.beta, phi=phi)
 }
 
 
@@ -118,7 +120,7 @@ DMLfit.oneCG <- function(Y, N, X, Z, n, p) {
     se.beta0 = sqrt(diag(XTVinvX.inv))
 
     ## return. I'll flatten the var/cov matrix for easy storing.
-    list(beta0=beta0, se.beta0=se.beta0, var.beta0 = as.vector(XTVinvX.inv))
+    list(beta0=beta0, se.beta0=se.beta0, var.beta0 = as.vector(XTVinvX.inv), phi=phiHat)
 }
 
 ##############################################################
