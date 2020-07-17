@@ -46,7 +46,7 @@ DMLfit.multiFactor <- function(BSobj, design, formula, smoothing=FALSE, smoothin
 ############################################################################
 DMLfit.multiFactor.engine <- function(Y0, N0, X0, Z0) {
 
-    if( (!is.matrix(Y0) | !is.matrix(N0)) & (class(Y0)!="DelayedMatrix" | class(N0)!="DelayedMatrix") )
+    if( (!is.matrix(Y0) | !is.matrix(N0)) )
         stop("Y and N need to be matrices.\n")
 
     ## get dimensions

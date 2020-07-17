@@ -2,8 +2,10 @@
 ## some utility functions for BS-seq data
 #######################################################
 
-###### make an object of BSseq given count data from several replicates
+######################################################################
+## make an object of BSseq given count data from several replicates
 ## The input is a list of  data frames with columns: chr, pos, N, X.
+######################################################################
 makeBSseqData <- function(dat, sampleNames) {
     n0 <- length(dat)
 
@@ -71,14 +73,14 @@ makeBSseqData <- function(dat, sampleNames) {
 ## naive estimates of dispersion, give X and N
 ####################################################
 est.phi.naive <- function(X, N) {
-    p=X/N
-    mm=rowMeans(p)
-    mm[mm==0]=1e-5
-    mm[mm==1]=1-1e-5
-    vv=rowVars(p)
-    phi=vv/mm/(1-mm)
-    phi[phi>=1]=1-1e-5
-    phi[phi==0]=1e-5
+    p = X/N
+    mm = rowMeans(p)
+    mm[mm==0] = 1e-5
+    mm[mm==1] = 1-1e-5
+    vv = rowVars(p)
+    phi = vv/mm/(1-mm)
+    phi[phi>=1] = 1-1e-5
+    phi[phi==0] = 1e-5
     phi
 }
 
@@ -132,20 +134,21 @@ mergeData.counts.smooth <- function(BS1, BS2, mu1.smooth, mu2.smooth) {
 
 ########################################
 ## the rowVars function
+## I'll use the one in R
 ########################################
-rowVars <- function (x, center = NULL, ...) {
-    n <- !is.na(x)
-    n <- rowSums(n)
-    n[n <= 1] <- NA
-    if (is.null(center)) {
-        center <- rowMeans(x, ...)
-    }
-    x <- x - center
-    x <- x * x
-    x <- rowSums(x, ...)
-    x <- x/(n - 1)
-    x
-}
+## rowVars <- function (x, center = NULL, ...) {
+##     n <- !is.na(x)
+##     n <- rowSums(n)
+##     n[n <= 1] <- NA
+##     if (is.null(center)) {
+##         center <- rowMeans(x, ...)
+##     }
+##     x <- x - center
+##     x <- x * x
+##     x <- rowSums(x, ...)
+##     x <- x/(n - 1)
+##     x
+## }
 
 
 ######################################################################################
@@ -256,27 +259,28 @@ est.prior.BSseq.logN <- function(X, N) {
         return(c(-3, 1))
 
     ## keep sites with large coverage and no missing data
-    ix=rowMeans(N>10)==1 & rowSums(N==0)==0
+    ix = rowMeans(N>10)==1 & rowSums(N==0)==0
     if(sum(ix) < 50) {
         warning("The coverages are too low. Cannot get good estimations of prior. Use arbitrary prior N(-3,1).")
         return(c(-3, 1))
     }
 
-    X=X[ix,,drop=FALSE]; N=N[ix,,drop=FALSE]
+    X = X[ix,,drop=FALSE]
+    N = N[ix,,drop=FALSE]
     ## compute sample mean/var
-    p=X/N
-    mm=rowMeans(p)
-    mm[mm==0]=1e-5
-    mm[mm==1]=1-1e-5
-    vv=rowVars(p)
-    phi=vv/mm/(1-mm)
+    p = X/N
+    mm = rowMeans(p)
+    mm[mm==0] = 1e-5
+    mm[mm==1] = 1-1e-5
+    vv = rowVars(p)
+    phi = vv/mm/(1-mm)
     ## exclude those with vv==0. Those are sites with unobservable phis.
     ## But this will over estimate the prior.
     ## What will be the consequences????
-    phi=phi[vv>0]
-    lphi=log(phi[phi>0])
-    prior.mean=median(lphi, na.rm=TRUE)
-    prior.sd=IQR(lphi, na.rm=TRUE) /1.39
+    phi = phi[vv>0]
+    lphi = log(phi[phi>0])
+    prior.mean = median(lphi, na.rm=TRUE)
+    prior.sd = IQR(lphi, na.rm=TRUE) /1.39
 
     ## It seems this over-estimates the truth. Need to use the tricks in
     ## my biostat paper to remove the over-estimation. To be done later.

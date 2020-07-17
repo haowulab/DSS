@@ -1,13 +1,6 @@
+###############################################
 ### some utility functions
-## variance of each row
-rowVars <- function(x) {
-    rowMeans = DelayedArray::rowMeans
-    n0 <- ncol(x)
-    EX <- rowMeans(x, na.rm=TRUE)
-    EX2 <- rowMeans(x^2, na.rm=TRUE)
-    vv <- (EX2-EX^2) * n0 / (n0-1)
-    vv
-}
+###############################################
 
 ### generate negative binomial rv, given mu and phi (over-dispersion)
 rnegbinom <- function (n, mu =1, phi=0.01){
@@ -15,9 +8,7 @@ rnegbinom <- function (n, mu =1, phi=0.01){
 }
 
 
-###############################################
-## Smoothing function. Smooth by chr
-###############################################
+### Smoothing function. Smooth by chr
 smooth.chr <- function(x, ws, allchr, allpos, method=c("avg", "sum")) {
     method <- match.arg(method)
     if(method == "avg")
