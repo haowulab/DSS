@@ -77,7 +77,7 @@ est.phi.naive <- function(X, N) {
     mm = rowMeans(p)
     mm[mm==0] = 1e-5
     mm[mm==1] = 1-1e-5
-    vv = rowVars(p)
+    vv = matrixStats::rowVars(p)
     phi = vv/mm/(1-mm)
     phi[phi>=1] = 1-1e-5
     phi[phi==0] = 1e-5
@@ -131,24 +131,6 @@ mergeData.counts.smooth <- function(BS1, BS2, mu1.smooth, mu2.smooth) {
 
     return(alldat)
 }
-
-########################################
-## the rowVars function
-## I'll use the one in R
-########################################
-## rowVars <- function (x, center = NULL, ...) {
-##     n <- !is.na(x)
-##     n <- rowSums(n)
-##     n[n <= 1] <- NA
-##     if (is.null(center)) {
-##         center <- rowMeans(x, ...)
-##     }
-##     x <- x - center
-##     x <- x * x
-##     x <- rowSums(x, ...)
-##     x <- x/(n - 1)
-##     x
-## }
 
 
 ######################################################################################
@@ -272,7 +254,7 @@ est.prior.BSseq.logN <- function(X, N) {
     mm = rowMeans(p)
     mm[mm==0] = 1e-5
     mm[mm==1] = 1-1e-5
-    vv = rowVars(p)
+    vv = matrixStats::rowVars(p)
     phi = vv/mm/(1-mm)
     ## exclude those with vv==0. Those are sites with unobservable phis.
     ## But this will over estimate the prior.
