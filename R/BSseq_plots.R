@@ -29,6 +29,7 @@ showOneDMR <- function(OneDMR, BSobj, ext=500, ylim=c(0,1)) {
     sNames = sampleNames(BSobj)
     par(mfrow=c(nSample, 1), mar = c(2.5, 2.5, 1.6, 2.5), mgp = c(1.5, 0.5, 0))
     thisP = thisX/thisN
+    maxN = max(thisN[ix1,])
 
     for(i  in 1:ncol(X)) {
         ## blue foreground, methylated, normalized to ylim
@@ -42,11 +43,18 @@ showOneDMR <- function(OneDMR, BSobj, ext=500, ylim=c(0,1)) {
         axis(2, col="blue", col.axis="blue")
         mtext(chr, side=1, line=1.33, cex=y.cex)
         mtext("methyl%", side=2, line=1.33, col="blue", cex=y.cex)
-        ## black curve, total number, normalized to ylim
-        thisN.norm = thisN[ix1,i]/max(thisN[ix1,])*ylim[2]
+
+        ## black curve, total counts, normalized to ylim
+        thisN.norm = thisN[ix1,i]/maxN * ylim[2]
         lines(thispos[ix1], thisN.norm, type="l", col="gray", lwd=1.5)
-        axis(side=4, at=seq(0,ylim[2],length.out=5),
-             labels=round(seq(0, max(thisN[ix1,]), length.out=5)) )
+        ## Be careful in y-axis labels, especially when the counts are very low
+        if(maxN >= 4) {
+            axis(side=4, at=seq(0,ylim[2],length.out=5),
+                 labels=round(seq(0, maxN, length.out=5)) )
+        } else {
+            axis(side=4, at=seq(0,ylim[2],length.out=maxN+1), labels=0:maxN)
+        }
+
         mtext("read depth", side=4, line=1.33, cex=y.cex)
         ## plot a shaded region for DMR
         rect(OneDMR$start, ylim[1], OneDMR$end, ylim[2], col="#FF00001A", border = NA)
