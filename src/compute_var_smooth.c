@@ -44,9 +44,9 @@ void compute_var_smooth_engine(double *vars, double *delta, double *n1, int *nit
 						thisvar = thisvar + vars[ipos];
 					else { /* different position */
 						/* distances. This is used to compute correlation. */
-						/* should take a square root on (delta[j] * delta[k]) */
+						/* take a square root on (delta[j] * delta[k])?? */
 						nlag = abs(pos[k] - pos[j]) / BINSIZE;
-						dtmp = n1[j]*n1[k]*pow(rho, nlag) * sqrt(delta[j] * delta[k]);
+						dtmp = n1[j]*n1[k]*pow(rho, nlag) * (delta[j] * delta[k]);
 						thisvar = thisvar + dtmp*2;
 					}
 				}
