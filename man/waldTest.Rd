@@ -11,8 +11,9 @@
   be constructed. P-values will be obtained based on Gaussian assumption.
 }
 \usage{
-\S4method{waldTest}{SeqCountSet}(seqData, sampleA, sampleB, equal.var)
+\S4method{waldTest}{SeqCountSet}(seqData, sampleA, sampleB, equal.var, fdr.method=c("BH", "locfdr"))
 }
+
 \arguments{
   \item{seqData}{An object of SeqCountSet class.}
   \item{sampleA}{The sample labels for the first sample to be
@@ -22,6 +23,8 @@
   \item{equal.var}{A boolean to indicate whether to use the same or
     different means in two groups for computing variances in Wald
     test. Default is FALSE.}
+    \item{fdr.method}{Method to compute FDR. Availabile options are "BH" for 
+    Benjamini-Hochberg FDR method, or local FDR from "locfdr" package.}
 }
 
 \details{
@@ -46,6 +49,8 @@
   \item{difExpr}{differences in expressions between two groups.}
   \item{stats}{Wald test statistics.}
   \item{pval}{p-values.}
+  \item{fdr}{FDR.}
+  \item{local.fdr}{Local FDR if the FDR method is "locfdr".}
   \item{others}{input gene annotations supplied as AnnotatedDataFrame
     when constructed the SeqCountData object.}
 }
