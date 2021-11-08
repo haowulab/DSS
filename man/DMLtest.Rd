@@ -89,7 +89,8 @@ DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE,
   \item{chr}{Chromosome number.}
   \item{pos}{Genomic coordinates.}
   \item{mu1, mu2}{Mean methylations of two groups.}
-  \item{diff}{Difference of mean methylations of two groups.}
+  \item{diff}{Difference of mean methylations of two
+  groups. diff=mu1-mu2. }
   \item{diff.se}{Standard error of the methylation difference.}
   \item{stat}{Wald statistics.}
   \item{pval}{P-values. This is obtained from normal distribution.}

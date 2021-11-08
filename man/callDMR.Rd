@@ -63,7 +63,7 @@ callDMR(DMLresult, delta=0, p.threshold=1e-5,
   \item{meanMethy1, meanMethy2}{Average methylation levels in two
     conditions.}
   \item{diff.Methy}{The difference in the methylation levels between two
-    conditions.}
+    conditions. diff.Methy=meanMethy1-meanMethy2.}
   \item{areaStat}{The sum of the test statistics of all CpG sites within
     the DMR.}
 }
