@@ -427,11 +427,18 @@ The example data are from RRBS experiment so the DMRs are much shorter.**
 
 ### Parallel computing for DML/DMR detection from two-group comparison
 
-We now implement parallel computing for two-group DML test to speed up the computation. 
-The parallelism is achieved by specifying the `BPPARAM` parameter in `DMLtest` function,  
-through the functionalities provided in  `r Biocpkg("BiocParallel")` package. 
+We implement parallel computing for two-group DML test to speed up the computation. 
+The parallelism is achieved by specifying the `ncores` parameter in `DMLtest` function,  
+through the functionalities provided in  `parallel` package. 
 Please see the help for `DMLtest` function for more description and example codes. 
-To know more about the `r Biocpkg("BiocParallel")`, please read its documentations.
+Note that older version of DSS (<2.4x) used the `bplapply` function in `BiocParallel`
+package. However, that function somehow has significantly reduced
+performance in the newer release (>1.25), so we switched to `mcapply`.
+A drawback is that the progress bar cannot be displayed under the paralelle computing setting.
+Another problem is that users might experience problems using parallel computing on Windows,
+since the mcapply function relies on forking but Windows does not support forking.
+Thus, we suggest to use ncores=1 on Windows. For more details,
+please read the `parallel` package documentation.
 
 We did some simple tests. The figure below shows the time spent in `DMLtest` function,
 for different numbers of CpG sites in the data and using different number of cores. 

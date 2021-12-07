@@ -12,7 +12,7 @@
 
 \usage{
 DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE,
-        smoothing.span = 500, BPPARAM = bpparam()) 
+        smoothing.span = 500, ncores) 
 }
 
 \arguments{
@@ -29,9 +29,8 @@ DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE,
 %     method. This will be ignored if smoothing=FALSE.}
   \item{smoothing.span}{The size of smoothing window, in
     basepairs. Default is 500.}
-  \item{BPPARAM}{An optional BiocParallelParam instance determining the
-	parallel back-end to be used. See sections 'Parallelization' for
-	details.}
+  \item{ncores}{Number of CPU cores used in parallel computing.
+	See sections 'Parallelization' for details.}
 }
 
 \details{
@@ -67,19 +66,28 @@ DMLtest(BSobj, group1, group2, equal.disp = FALSE, smoothing = FALSE,
 
 \section{Parallelization}{
   The shrinkage estimation for dispersion is the most computational
-  component in DML testing. We now uses the 'BiocParallel' package to
-  implement parallelization, which provides significant computational
-  improvements.
+  component in DML testing. We use the 'mcapply' function in 'parallel'
+  package to implement parallelization. Note that older version of DSS
+  (<2.4x) used the 'bplapply' function in 'BiocParallel'
+  package. However, that function somehow has significantly reduced
+  performance in the new release (>1.25), so we switched to mcapply.
+  A drawback is that the progress bar cannot be displayed under the
+  paralelle computing setting. 
 
-  All parallelization options are controlled via the 'BPPARAM'
-  argument. BiocParallel provides params for 
-  SerialParam (Unix, Mac, Windows),
-  MulticoreParam (Unix and Mac), SnowParam (Unix, Mac, and
-  Windows, limited to single-machine clusters), and
-  BatchJobsParam (Unix, Mac, Windows). By default, 'BPPARAM' takes value
-  from 'bpparam()'. Example section provides some codes to generate
-  user-specified BPPARAM. For more details, please  read the
-  'BiocParallel' documentation.}
+  Users might experience problems on Windows, since the mcapply function
+  relies on forking but Windows does not support forking. Thus, we
+  suggest to use ncores=1 on Windows. For more details, please read the
+  'parallel' documentation.}
+
+  % All parallelization options are controlled via the 'BPPARAM'
+  % argument. BiocParallel provides params for 
+  % SerialParam (Unix, Mac, Windows),
+  % MulticoreParam (Unix and Mac), SnowParam (Unix, Mac, and
+  % Windows, limited to single-machine clusters), and
+  % BatchJobsParam (Unix, Mac, Windows). By default, 'BPPARAM' takes value
+  % from 'bpparam()'. Example section provides some codes to generate
+  % user-specified BPPARAM. For more details, please  read the
+  % 'BiocParallel' documentation.}
   
   
 
@@ -146,18 +154,14 @@ head(dmlTest)
 
 ## Examples for Parallelization
 ## use single core - this has not parallelization
-single = MulticoreParam(workers=1, progressbar=TRUE)
-dmlTest <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"),
-                   BPPARAM=single)
+system.time(dmlTest <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"), ncores=1))
 
-## use 4 cores
-mParam = MulticoreParam(workers=4, progressbar=TRUE)
-dmlTest <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"),
-                   BPPARAM=mParam)
+## use 4 cores - it's about twice as fast
+system.time(dmlTest <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"), ncores=4))
 
-## use SnowParam, this will work on Windows
-snow <- SnowParam(workers = numCores)
-dmlTest <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"),
-                   BPPARAM=snow)
+% ## use SnowParam, this will work on Windows
+% snow <- SnowParam(workers = numCores)
+% dmlTest <- DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"),
+%                    BPPARAM=snow)
 }
 }

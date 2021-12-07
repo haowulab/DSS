@@ -27,14 +27,20 @@ CHANGES IN VERSION 1.7.0
     Currently edgeR functions are used for glm fitting and hypothesis testing.
     DSS only provide functions for dispersion estimation.
 
-CHANGES IN VERSION 2.5.0
+CHANGES IN VERSION 2.0.0
 ----------------------
   o Implemented methods for detecting differentially methylated regions (DMR).
-
-CHANGES IN VERSION 2.6.0
-----------------------
   o Modified the algorithm for computing variances with smoothing. 
-
-CHANGES IN VERSION 2.8.0
-----------------------
   o Add function to detect DML for general experimental design.
+  o Add function to detect DML for general experimental design.
+
+CHANGES IN VERSION 2.5.0
+----------------------
+  Modify the parallel computing part in DML testing.
+  We now use the 'mcapply' function in 'parallel'
+  package to implement parallelization. Note that older version of DSS
+  (<2.4x) used the 'bplapply' function in 'BiocParallel'
+  package. However, that function somehow has significantly reduced
+  performance in the new release (>1.25), so we switched to mcapply.
+  A drawback is that the progress bar cannot be displayed under the
+  paralelle computing setting.

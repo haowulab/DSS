@@ -221,9 +221,9 @@ smooth.collapse <- function(BS, method, ws, ...) {
 ########################################################################
 ## estimate dispersion for BS-seq data, given means
 ########################################################################
-est.dispersion.BSseq <- function(X, N, estprob, BPPARAM) {
+est.dispersion.BSseq <- function(X, N, estprob, ncores) {
     prior <- est.prior.BSseq.logN(X, N)
-    dispersion.shrinkage.BSseq(X, N, prior, estprob, BPPARAM)
+    dispersion.shrinkage.BSseq(X, N, prior, estprob, ncores)
 }
 
 ########################################################################
@@ -276,7 +276,7 @@ est.prior.BSseq.logN <- function(X, N) {
 ## The shrinakge is done in log scale. So data will be shrink to the
 ## logarithmic means.
 ########################################################################
-dispersion.shrinkage.BSseq <- function(X, N, prior, estprob, BPPARAM) {
+dispersion.shrinkage.BSseq <- function(X, N, prior, estprob, ncores) {
     ## penalized likelihood function
     plik.logN <- function(size, X,mu,m0,tau,phi)
         -(sum(dbb(size, X, mu, exp(phi))) + dnorm(phi, mean=m0, sd=tau, log=TRUE))
@@ -295,7 +295,7 @@ dispersion.shrinkage.BSseq <- function(X, N, prior, estprob, BPPARAM) {
 
     ## setup a progress bar
     nCG.pb = round(nrow(X2)/100)
-    if(bpworkers(BPPARAM) == 1) { ## use single core, no parallelism
+    if(ncores == 1) { ## use single core, no parallelism
         pb <- txtProgressBar(style = 3)
         for(i in 1:nrow(X2)) {
             ## print a progress bar
@@ -310,17 +310,15 @@ dispersion.shrinkage.BSseq <- function(X, N, prior, estprob, BPPARAM) {
         cat("\n")
     } else  { ## use multiple cores.
         foo <- function(i) {
-            shrk.one <- optimize(f=plik.logN, size=N2[i,], X=X2[i,], mu=estprob2[i,], m0=prior[1], tau=prior[2],
+            shrk.one <- optimize(f=plik.logN, size=N2[i,], X=X2[i,],
+                                 mu=estprob2[i,], m0=prior[1], tau=prior[2],
                                  interval=c(-5, log(0.99)),tol=1e-3)
             exp(shrk.one$minimum)
         }
-        ## Set progress bar
-        BPPARAM$progressbar = TRUE
-        shrk.phi2 <- bptry(bplapply(1:nrow(X2), foo, BPPARAM = BPPARAM))
-        if (!all(bpok(shrk.phi2))) {
-            stop("Shrinkage estimator in parallel computing encountered errors: ",
-                 sum(!bpok(shrk.phi2)), " of ", length(shrk.phi2),
-                 " smoothing tasks failed.")
+        shrk.phi2 <- try(mclapply(1:nrow(X2), foo, mc.cores=ncores))
+        if(class(shrk.phi2) == "try-error") {
+            stop(paste("Shrinkage estimator in parallel computing encountered errors.",
+                       "Please switch to single core.\n"))
         } else {
             shrk.phi2 <- unlist(shrk.phi2)
         }
