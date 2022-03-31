@@ -77,7 +77,7 @@ est.phi.naive <- function(X, N) {
     mm = rowMeans(p)
     mm[mm==0] = 1e-5
     mm[mm==1] = 1-1e-5
-    vv = matrixStats::rowVars(p)
+    vv = rowVars(p)
     phi = vv/mm/(1-mm)
     phi[phi>=1] = 1-1e-5
     phi[phi==0] = 1e-5
@@ -254,7 +254,7 @@ est.prior.BSseq.logN <- function(X, N) {
     mm = rowMeans(p)
     mm[mm==0] = 1e-5
     mm[mm==1] = 1-1e-5
-    vv = matrixStats::rowVars(p)
+    vv = rowVars(p)
     phi = vv/mm/(1-mm)
     ## exclude those with vv==0. Those are sites with unobservable phis.
     ## But this will over estimate the prior.
