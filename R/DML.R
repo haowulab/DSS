@@ -11,8 +11,13 @@ DMLtest <- function(BSobj, group1, group2, equal.disp=FALSE, smoothing=FALSE,
                     smoothing.span=500, ncores) {
 
     ## determine number of cores used in parallel computing setting
-    if(missing(ncores))
-        ncores = max(detectCores() - 3, 1)
+    if(missing(ncores)) {
+        if(.Platform$OS.type == "windows") ## windows
+            ncores = 1
+        else # for Mac and linux
+            ncores = max(detectCores() - 3, 1)
+    }
+
     if(ncores > detectCores())
         stop("ncores exceeds the number of CPU cores on the system.")
 
