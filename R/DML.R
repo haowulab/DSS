@@ -12,7 +12,8 @@ DMLtest <- function(BSobj, group1, group2, equal.disp=FALSE, smoothing=FALSE,
 
     ## determine number of cores used in parallel computing setting
     if(missing(ncores)) {
-        if(.Platform$OS.type == "windows") ## windows
+        if(.Platform$OS.type == "windows" | Sys.info()['sysname'] == "Windows")
+            ## Windows, use single core
             ncores = 1
         else # for Mac and linux
             ncores = max(detectCores() - 3, 1)
