@@ -334,13 +334,12 @@ of mean methylation.
 such as from RRBS or hydroxymethylation, smoothing is not recommended. -->
 
 To perform DML test without smoothing, do:
-```{r, results=FALSE}
+```{r, results=FALSE, eval=FALSE}
 dmlTest = DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"))
-head(dmlTest)
 ```
 
 To perform statistical test for DML with smoothing, do:
-```{r, results=FALSE}
+```{r, results=FALSE, eval=FALSE}
 dmlTest.sm = DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"), 
                      smoothing=TRUE)
 ```
@@ -361,6 +360,11 @@ according to our experience.
 
 **Step 3**. With the test results, one can call DML by using ``callDML`` function.
 The results DMLs are sorted by the significance.
+```{r, echo=FALSE, result=FALSE, include=FALSE, prompt=FALSE}
+  dmlTest = DMLtest(BSobj, group1=c("C1", "C2"), group2=c("N1", "N2"),
+                    ncores=1)
+```
+
 ```{r}
   dmls = callDML(dmlTest, p.threshold=0.001)
   head(dmls)
