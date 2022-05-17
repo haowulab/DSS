@@ -251,6 +251,8 @@ Bioconductor package, which has neat definition of
 data structures and many useful utility functions. In order to use the DM detection functionalities,
 ``bsseq`` needs to be pre-installed.
 
+
+
 ## Input data preparation
 
 DSS requires data from each BS-seq experiment to be summarized
@@ -305,6 +307,8 @@ A typical DML detection contains two simple steps. First one conduct
 DM test at each CpG site, then DML/DMR are called based on the test result
 and user specified threshold.
 
+
+
 ## DML/DMR detection from two-group comparison
 
 **Step 1**. Load in library. Read in text files and create an object of ``BSseq`` class, which is
@@ -323,6 +327,7 @@ BSobj = makeBSseqData( list(dat1.1, dat1.2, dat2.1, dat2.2),
 BSobj
 ```
 
+
 **Step 2**. Perform statistical test for DML by calling ``DMLtest`` function.
 This function basically performs following steps: (1) estimate mean methylation levels
 for all CpG site; (2) estimate dispersions at each CpG sites; (3) conduct Wald test.
@@ -332,6 +337,7 @@ of mean methylation.
 <!-- when the CpG sites are dense in the data
 (such as from the whole-genome BS-seq). However for data with sparse CpG,
 such as from RRBS or hydroxymethylation, smoothing is not recommended. -->
+
 
 To perform DML test without smoothing, do:
 ```{r, results=FALSE, eval=FALSE}
