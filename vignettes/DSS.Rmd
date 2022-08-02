@@ -636,8 +636,15 @@ design
 ```
 
 To fit the model, "pair" variable needs to be included in the formula.
-Then the  treatment effect can be tested adjusted for pairing: 
+Then the  treatment effect can be tested adjusted for pairing.
+Note, the following is for illustration purpose only since the data
+are not really paired. The input
+`BSobj` needs to match the dimension of `design`, i.e.,
+the number of samples in `BSobj` should equal to the number of
+rows of `design`.
+
 ```{r, eval=FALSE}
+BSobj=RRBS[,1:6]
 DMLfit = DMLfit.multiFactor(BSobj, design, formula = ~ Treatment + pair)
 dmlTest = DMLtest.multiFactor(DMLfit, term="Treatment")
 ```
