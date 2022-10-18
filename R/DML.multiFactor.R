@@ -226,7 +226,7 @@ DMLtest.multiFactor.Contrast <- function(DMLfit, Contrast) {
     ## get the sign of the contrast if there's only one contrast.
     ## This is to be added to test statistics
     ## When Contrast has multiple rows, there won't be a sign for test statistics.
-    if(nrow(Contrast) == 1)
+    if(ncol(Contrast) == 1)
         signs = sign(betas %*% Contrast)
     else signs = 1
 
