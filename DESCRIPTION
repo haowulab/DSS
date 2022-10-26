@@ -4,7 +4,7 @@ Version: 2.44.0
 Date: 2021-12-6
 Author: Hao Wu<hao.wu@emory.edu>, Hao Feng<hxf155@case.edu>
 Depends: R (>= 3.5.0), methods, Biobase, BiocParallel, bsseq, parallel
-Imports: utils, graphics, stats, splines, matrixStats
+Imports: utils, graphics, stats, splines
 Maintainer: Hao Wu <hao.wu@emory.edu>, Hao Feng <hxf155@case.edu>
 Description: DSS is an R library performing differntial analysis for
         count-based sequencing data. It detectes differentially

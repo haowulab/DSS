@@ -104,12 +104,10 @@ DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell)
 
 ## following 4 tests should produce the same results,
 ## since 'case' only has two levels.
-## However the p-values from F-tests (using term or Contrast) are
-## slightly different, due to normal approximation in Wald test.
 test1 = DMLtest.multiFactor(DMLfit, coef=2)
 test2 = DMLtest.multiFactor(DMLfit, coef="caseSLE")
 test3 = DMLtest.multiFactor(DMLfit, term="case")
-Contrast = matrix(c(0,1,0,0), ncol=1)
+Contrast = matrix(c(0,1,0), ncol=1)
 test4 = DMLtest.multiFactor(DMLfit, Contrast=Contrast)
 cor(cbind(test1$pval, test2$pval, test3$pval, test4$pval))
 
@@ -118,6 +116,8 @@ cor(cbind(test1$pval, test2$pval, test3$pval, test4$pval))
 ## 'term' has to be in the formula, whereas 'coef' has to be in colnames
 ## of the design matrix.
 DMLfit = DMLfit.multiFactor(RRBS, design, ~case+cell+case:cell)
+DMLfit$X
+DMLfit$formula
 DMLtest.cell = DMLtest.multiFactor(DMLfit, coef="cellrN")
 DMLtest.cell = DMLtest.multiFactor(DMLfit, term="cell")
 DMLtest.int = DMLtest.multiFactor(DMLfit, coef="caseSLE:cellrN")
