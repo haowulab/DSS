@@ -4,7 +4,7 @@
 ############################################################################
 DMLfit.multiFactor <- function(BSobj, design, formula, smoothing=FALSE, smoothing.span=500) {
     ## some checking to make sure input data is correct
-    if(nrow(BSobj) != nrow(design))
+    if(ncol(BSobj) != nrow(design))
         stop("Dimension of data and design don't match. ")
 
     ## make design matrix out of formula
