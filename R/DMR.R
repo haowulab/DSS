@@ -12,7 +12,7 @@ callDMR <- function(DMLresult, delta=0, p.threshold=1e-5,
         DMLresult = DMLresult[ix.keep,]
 
     flag.multifactor = FALSE
-    if(class(DMLresult)[2] == "DMLtest.multiFactor")
+    if(inherits(DMLresult, "DMLtest.multiFactor"))
         flag.multifactor = TRUE
 
     if(dis.merge > minlen)
