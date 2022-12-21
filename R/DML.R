@@ -54,7 +54,7 @@ DMLtest <- function(BSobj, group1, group2, equal.disp=FALSE, smoothing=FALSE,
         dmls <- DMLtest.Smooth(BS1, BS2, equal.disp, smoothing.span, ncores)
     }
 
-    class(dmls)[2] = "DMLtest"
+    class(dmls) = c("DMLtest", class(dmls))
     invisible(dmls)
 }
 
@@ -354,7 +354,7 @@ compute.var.Smooth.old <- function(estprob1, n1, phi1, smoothing.span, allchr, a
 ################################################
 callDML <- function(DMLresult, delta=0.1, p.threshold=1e-5) {
 
-    if(class(DMLresult)[2] == "DMLtest.multiFactor" & delta>0) {
+    if(inherits(DMLresult, "DMLtest.multiFactor") & delta>0) {
         warning("'delta' cannot be specified for multiple-factor test results. Set delta=0 and proceed ...\n")
         delta = 0
     }

@@ -161,7 +161,7 @@ DMLtest.multiFactor <- function(DMLfit, coef=2, term, Contrast) {
 
     }
 
-    class(res)[2] = "DMLtest.multiFactor"
+    class(res) = c("DMLtest.multiFactor", class(res))
     invisible(res)
 
 }
