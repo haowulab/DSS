@@ -316,7 +316,7 @@ dispersion.shrinkage.BSseq <- function(X, N, prior, estprob, ncores) {
             exp(shrk.one$minimum)
         }
         shrk.phi2 <- try(mclapply(1:nrow(X2), foo, mc.cores=ncores))
-        if(class(shrk.phi2) == "try-error") {
+        if(inherits(shrk.phi2, "try-error")) {
             stop(paste("Shrinkage estimator in parallel computing encountered errors.",
                        "Please switch to single core.\n"))
         } else {
