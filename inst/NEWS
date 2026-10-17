@@ -44,3 +44,8 @@ CHANGES IN VERSION 2.5.0
   performance in the new release (>1.25), so we switched to mcapply.
   A drawback is that the progress bar cannot be displayed under the
   paralelle computing setting.
+
+CHANGES IN VERSION 2.61.1
+----------------------
+  o A CpG that makes the weighted least-squares solve singular is kept
+    as a missing test, so DMLfit.multiFactor still fits the other CpGs.
