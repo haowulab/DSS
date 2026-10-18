@@ -1,7 +1,7 @@
 Package: DSS
 Title: Dispersion shrinkage for sequencing data
-Version: 2.59.1
-Date: 2026-4-9
+Version: 2.61.1
+Date: 2026-10-18
 Author: Hao Wu<hao.wu@emory.edu>, Hao Feng<hxf155@case.edu>
 Depends: R (>= 3.5.0), methods, Biobase, BiocParallel, bsseq, parallel
 Imports: utils, graphics, stats, splines
@@ -15,6 +15,8 @@ Description: DSS is an R library performing differntial analysis for
         Beta-Binomial distributions.
 License: GPL
 VignetteBuilder: knitr
-Suggests: BiocStyle, knitr, rmarkdown, edgeR
+Suggests: BiocStyle, knitr, rmarkdown, edgeR, testthat (>= 3.0.0),
+        GenomicRanges
 biocViews: Sequencing, RNASeq, DNAMethylation,GeneExpression,
         DifferentialExpression,DifferentialMethylation
+Config/testthat/edition: 3

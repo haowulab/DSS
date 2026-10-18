@@ -104,8 +104,37 @@ DMLfit.oneCG <- function(Y, N, X, Z, n, p) {
 
     ## First round of weighted least square.
     ## QR decomposition has to be performed for each CpG because it's WLS!!!
+    ## X'V^{-1}X can be numerically singular when the coverage weights are
+    ## extreme, even though the unweighted design is full rank. That CpG is
+    ## not estimable. Catch only that failure; any other solve() error aborts.
+    solveWcross = function(XTVinvX) {
+        tryCatch(
+            solve(XTVinvX),
+            error = function(e) {
+                msg = conditionMessage(e)
+                singular = grepl("computationally singular", msg, fixed=TRUE) ||
+                    grepl("exactly singular", msg, fixed=TRUE)
+                if(!singular)
+                    stop(e)
+                NULL
+            }
+        )
+    }
+    ## Same list as a successful fit. Unidentified entries stay missing.
+    ## The coverage-rank NULL return is the wrong signal here: the engine
+    ## leaves phi at 0 for that, and this site was not estimated.
+    missingFit = function() {
+        list(beta0=matrix(NA_real_, nrow=p, ncol=1),
+             se.beta0=rep(NA_real_, p),
+             var.beta0=rep(NA_real_, p * p),
+             phi=NA_real_)
+    }
+
     XTVinv = t(X * N)
-    beta0 = solve(XTVinv %*% X) %*% (XTVinv %*% Z) ### this parenthesis is also helpful to speed up
+    XTVinvX.inv = solveWcross(XTVinv %*% X)
+    if(is.null(XTVinvX.inv))
+        return(missingFit())
+    beta0 = XTVinvX.inv %*% (XTVinv %*% Z) ### this parenthesis is also helpful to speed up
 
     ## get dispersion estimates, and restrict a bit to bound away from 0/1.
     phiHat = (sum( (Z - X %*% beta0)^2 * N) - (n - p)) * n / (n - p) / sum(N-1)
@@ -115,8 +144,10 @@ DMLfit.oneCG <- function(Y, N, X, Z, n, p) {
 
     ## second round of regression.
     XTVinv = t(X * (N/(1+(N-1)*phiHat)))  ###t(X)%*%VInv
-    XTVinvX.inv = solve(XTVinv %*% X)
-    beta0 = solve(XTVinv %*% X) %*% (XTVinv %*% Z)
+    XTVinvX.inv = solveWcross(XTVinv %*% X)
+    if(is.null(XTVinvX.inv))
+        return(missingFit())
+    beta0 = XTVinvX.inv %*% (XTVinv %*% Z)
     se.beta0 = sqrt(diag(XTVinvX.inv))
 
     ## return. I'll flatten the var/cov matrix for easy storing.
